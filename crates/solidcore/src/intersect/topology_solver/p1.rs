@@ -1589,9 +1589,18 @@ impl<'a, O: SolutionObject> LocalSolver<'a, O> {
                 )?
             };
 
+            let probe = self.point.y > 30.2 && self.point.z > 0.9 && self.point.z < 10.5 && self.point.x < -5.5 && self.point.x > -12.0 && op == SolverOperation::Rayfire;
+            if probe {
+                eprintln!("PROBE face ray from {:?}: {} line hits, domain {uv_domain:?}", self.point, solutions.len());
+            }
             for found in solutions.as_slice() {
                 let mut sol = *found;
                 let scale = self.point.max_dimension();
+                if probe {
+                    let uvp = Vec2::new(sol.start.param(1)?, sol.start.param(2)?);
+                    let zt = vertex_zone_tol_3d(ts.kernel, objects, self.point_vertex)?;
+                    eprintln!("PROBE   hit t={:?} uv={uvp:?} type={:?} class={:?}", sol.start.param(0), sol.solution_type, face_point_classify(ts.kernel, objects, face, uvp, zt, true, true));
+                }
                 if op == SolverOperation::Rayfire && sol.start.param(0)? < -EFF_ZERO * scale {
                     continue;
                 }

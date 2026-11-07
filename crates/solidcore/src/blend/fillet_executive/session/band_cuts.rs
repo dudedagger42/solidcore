@@ -308,6 +308,7 @@ fn keeps_material_behind(
     }
     // no crossing: the section between its rails is wholly in the part or wholly outside it
     let class = BrepQuery::of_brep(body).point_3d_classify(k, body, middle, zone, true)?;
+    eprintln!("PROBE kmb: centre={centre:?} rails={rail1:?} {rail2:?} middle={middle:?} class={:?} obj={:?} ncross={}", class.point_class(), class.object(), crossings.len());
     if class.point_class() != PointClassType::Region {
         return Ok(true);
     }
@@ -698,6 +699,7 @@ pub fn band_cuts_the_part(
         )?;
         all_crossings.push(crossings);
         nears.push(near.clone());
+        eprintln!("PROBE station edge={edge_id:?} j={j} t={t} p={point:?} found={} keeps={} setback={}", judged.found, judged.keeps, judged.setback);
         states.push(if judged.found {
             u8::from(!judged.keeps)
         } else {

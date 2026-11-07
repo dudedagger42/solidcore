@@ -1808,6 +1808,9 @@ pub(crate) fn ray_fire_with_solver(
 
     // when no intersections are found - set region = infiniteRegion
     let Some(first) = solutions.get(0) else {
+        if start.y > 30.2 && start.z > 0.9 && start.z < 1.2 && start.x < -6.0 && start.x > -12.0 {
+            eprintln!("PROBE ray NO HIT start={start:?} dir={direction:?} radius={radius}");
+        }
         // But sometimes callers will set the infinite region to Null... [B111]
         let region = match b.infinite_region() {
             Some(r) => Some(r),
@@ -1874,6 +1877,14 @@ pub(crate) fn ray_fire_with_solver(
     // Classify from the end of the ray -- the point on the Edge -- back towards
     // the ray point: Orientation is Opposite.
     let region = local_curve_sector(k, b, &line, &ivl, OrientType::Opposite, &intersection)?;
+    if start.y > 30.2 && start.z > 0.9 && start.z < 1.2 && start.x < -6.0 && start.x > -12.0 {
+        eprintln!("PROBE ray start={start:?} dir={direction:?} n={} best=({}, nv {}, {:?}) region={region:?}", solutions.len(), best.start.solution_value, best.num_variables, best.objects[0].map(cache_entity));
+        for ii in 0..solutions.len() {
+            if let Some(s) = solutions.get(ii) {
+                eprintln!("PROBE   sol {ii}: value={} nv={} obj={:?} param0={:?}", s.start.solution_value, s.num_variables, s.objects[0].map(cache_entity), s.start.param(0).ok());
+            }
+        }
+    }
     Ok(RayFireResult {
         region,
         intersection,
