@@ -39,8 +39,12 @@
 //! - **"Moved no face".** The fork marks the new surfaces and, after the local operation,
 //!   asks whether some face's surface carries the mark. Surfaces here carry no attributes,
 //!   and the local operation's extended offset copies them, so a face is taken to lie on a
-//!   new surface when nine points of its surface over its UV domain drop onto that
-//!   surface within the B-rep's tolerance.
+//!   new surface when nine points of its surface over the face's own region (the union of
+//!   its outer loops' UV spans; its UV domain where no span can be made) drop onto that
+//!   surface within the B-rep's tolerance. The region, not the UV domain: after the local
+//!   operation a moved face's UV domain is its extended offset surface's whole box, and a
+//!   one-face B-spline wall sampled over it was taken as not moved
+//!   (solidcraft#10884, #13103).
 //! - **Not exact.** The fork's fillet executive can fail with `SM_FILERR_NOT_EXACT`
 //!   (`SM_OFR_NOT_EXACT` then); the port's has no such code, so that branch of step 5
 //!   is never taken.
@@ -78,6 +82,7 @@ use crate::geom::attribute::{
     ids, ApplicationValue, Attribute, AttributeHandle, AttributeHandlers, AttributeValue,
     AttributeView, Behavior, ObjectKey, Placement,
 };
+use crate::geom::extent2d::Extent2d;
 use crate::geom::global_solver::SolverOperation;
 use crate::kernel::Kernel;
 use crate::nurbs::b_spline_surface_n_lib::p2::OrientType;
@@ -800,12 +805,28 @@ impl FaceOffsetBrep<MoveHandle> for MoveBrep<'_> {
 
 /// Whether face `f` lies on one of `targets` (the fork marks the target surfaces and
 /// asks whether a face's surface carries the mark; see the module deviations): nine
-/// points of the face's surface over its UV domain within `tol` of a target.
-fn on_target(k: &Kernel, b: &Brep, f: FaceId, targets: &[Surface], tol: f64) -> Result<bool> {
-    let Some(s) = crate::topology::face::p2::surface(b, f)? else {
+/// points of the face's surface over the face's own region, the union of its outer
+/// loops' UV spans (over its UV domain where no span can be made), within `tol` of a
+/// target. After the local operation a moved face's UV domain is its extended offset
+/// surface's whole box, and points over that box can lie far off the face (a one-face
+/// B-spline wall: solidcraft#10884, #13103).
+fn on_target(k: &Kernel, b: &mut Brep, f: FaceId, targets: &[Surface], tol: f64) -> Result<bool> {
+    let Some(s) = crate::topology::face::p2::surface(b, f)?.cloned() else {
         return Ok(false);
     };
-    let domain = crate::topology::face::p2::uv_domain(b, f)?;
+    let mut region: Option<Extent2d> = None;
+    for l in crate::topology::face::p2::outer_loops(b, f)? {
+        if let Some(span) = crate::topology::loopuse::loop_uv_span(k, b, l)? {
+            region = Some(match region {
+                Some(r) => r.union(&span),
+                None => span,
+            });
+        }
+    }
+    let domain = match region {
+        Some(r) => r,
+        None => crate::topology::face::p2::uv_domain(b, f)?,
+    };
     let mut points = Vec::new();
     for i in 0..3u32 {
         for j in 0..3u32 {
