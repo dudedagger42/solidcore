@@ -1212,6 +1212,7 @@ impl<O: ClassObject> CurveClassification<O> {
                 }
                 let r = access.compute(k, &mut self.at_mut(ii)?.end, pt);
                 if r.is_err() && std::env::var_os("PROBE_11997").is_some() {
+                    eprintln!("PROBE backtrace {}", std::backtrace::Backtrace::force_capture());
                     let ivl = self.at(ii)?.interval;
                     let c = self.curve_geometry(access.geometry())?;
                     let ps: Vec<_> = (0..=4).map(|j| c.evaluate_point(k, ivl.min() + (ivl.max() - ivl.min()) * f64::from(j) / 4.0).ok()).collect();

@@ -1543,6 +1543,10 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                     };
                     let num_ivls = cc1.size();
 
+                    if std::env::var_os("PROBE_11997").is_some() {
+                        let pts = |f| brep.face_vertices(f).map(|vs| vs.iter().filter_map(|v| brep.vertex_point(*v).ok()).collect::<Vec<_>>()).ok();
+                        eprintln!("PROBE p2 pair ii {ii} jj {jj} kk {kk} coincident {are_coincident} n_ivls {num_ivls} f1 {:?} f2 {:?}", pts(f1), pts(f2));
+                    }
                     // Make sure that all PointClasses can evaluate their positions.
                     ignore_soft(crate::error::passed_on(
                         cc1.set_point_class_parameters_mut(k, brep, false),

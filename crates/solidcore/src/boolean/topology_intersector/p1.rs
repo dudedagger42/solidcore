@@ -2926,7 +2926,7 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                             .get_mut(kk)
                             .ok_or(dangling("classification lists differ"))?;
                         ignore_soft(crate::error::passed_on(
-                            cc1.set_point_class_parameters_mut(k, brep, true),
+                            { let r = cc1.set_point_class_parameters_mut(k, brep, true); if std::env::var_os("PROBE_11997").is_some() { eprintln!("PROBE ssi pair cc1 kk {kk} ii {ii} jj {jj} f1 verts {:?} f2 verts {:?}", brep.face_vertices(face1).map(|vs| vs.iter().filter_map(|v| brep.vertex_point(*v).ok()).collect::<Vec<_>>()).ok(), brep.face_vertices(face2).map(|vs| vs.iter().filter_map(|v| brep.vertex_point(*v).ok()).collect::<Vec<_>>()).ok()); } r },
                             k.fixes.brep_edit_statuses_pass_on,
                         )?)?;
                         let cc2 = fi
@@ -2934,7 +2934,7 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
                             .get_mut(kk)
                             .ok_or(dangling("classification lists differ"))?;
                         ignore_soft(crate::error::passed_on(
-                            cc2.set_point_class_parameters_mut(k, brep, true),
+                            { let r = cc2.set_point_class_parameters_mut(k, brep, true); if std::env::var_os("PROBE_11997").is_some() { eprintln!("PROBE ssi pair cc2 kk {kk} ii {ii} jj {jj} f1 verts {:?} f2 verts {:?}", brep.face_vertices(face1).map(|vs| vs.iter().filter_map(|v| brep.vertex_point(*v).ok()).collect::<Vec<_>>()).ok(), brep.face_vertices(face2).map(|vs| vs.iter().filter_map(|v| brep.vertex_point(*v).ok()).collect::<Vec<_>>()).ok()); } r },
                             k.fixes.brep_edit_statuses_pass_on,
                         )?)?;
                     }
