@@ -7,9 +7,10 @@ use solidcore::topology::brep::p1::faces;
 use solidcore::{Kernel, Point3};
 use std::time::Instant;
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let ks: Vec<usize> = std::env::args().skip(1).map(|a| a.parse().unwrap()).collect();
-    let ks = if ks.is_empty() { vec![5, 10, 14, 20] } else { ks };
+#[test]
+#[ignore = "probe"]
+fn probe_8585() -> Result<(), Box<dyn std::error::Error>> {
+    let ks: Vec<usize> = std::env::var("PROBE_KS").ok().map(|v| v.split(',').map(|a| a.parse().unwrap()).collect()).unwrap_or(vec![5, 10, 14, 20]);
     for overlap in [false, true] {
         for &k in &ks {
             let mut kernel = Kernel::default();
