@@ -49,7 +49,7 @@ fn probe_8585() -> Result<(), Box<dyn std::error::Error>> {
                 let p = kernel.take_profile();
                 let mut s: Vec<_> = p.summary.iter().collect();
                 s.sort_by_key(|n| std::cmp::Reverse(n.self_ns.unwrap_or(0)));
-                for n in s.iter().take(12) {
+                for n in s.iter().take(20) {
                     println!("   {:>10.1} ms self {:>10.1} total x{} {}", n.self_ns.unwrap_or(0) as f64 / 1e6, n.total_ns.unwrap_or(0) as f64 / 1e6, n.count, n.name);
                 }
             }
