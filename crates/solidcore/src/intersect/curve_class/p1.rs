@@ -1211,6 +1211,13 @@ impl<O: ClassObject> CurveClassification<O> {
                     Err(e) => record(Err(e))?,
                 }
                 let r = access.compute(k, &mut self.at_mut(ii)?.end, pt);
+                if r.is_err() && std::env::var_os("PROBE_11997").is_some() {
+                    let ivl = self.at(ii)?.interval;
+                    let c = self.curve_geometry(access.geometry())?;
+                    let ps: Vec<_> = (0..=4).map(|j| c.evaluate_point(k, ivl.min() + (ivl.max() - ivl.min()) * f64::from(j) / 4.0).ok()).collect();
+                    eprintln!("PROBE ci {ii}/{num_cis} end failed: interval {:?} natural {:?} points {:?} start class {:?} mid class {:?}", ivl, c.natural_interval(), ps, self.at(ii)?.start.point_class(), self.at(ii)?.mid.point_class());
+                    for jj in 0..num_cis { eprintln!("PROBE   ci {jj}: {:?} start {:?} mid {:?} end {:?}", self.at(jj)?.interval, self.at(jj)?.start.point_class(), self.at(jj)?.mid.point_class(), self.at(jj)?.end.point_class()); }
+                }
                 record(r)?;
             }
 

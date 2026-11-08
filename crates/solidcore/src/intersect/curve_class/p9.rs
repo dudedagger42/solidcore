@@ -418,6 +418,11 @@ impl<O: ClassObject> CurveClassification<O> {
                     .map(|s| named(s, source_handle, edge.curve)),
             );
         }
+        if std::env::var_os("PROBE_11997").is_some() && (working.natural_interval().max() - 2.4245186696240912).abs() < 1e-9 {
+            let a = target.evaluate_point(k, edge.interval.min()).ok();
+            let z = target.evaluate_point(k, edge.interval.max()).ok();
+            eprintln!("PROBE edge_solutions: edge {:?}..{:?} kind {} tol {tolerance} edge_zone {edge_zone} n {} sols {:?}", a, z, target.type_string(), solutions.len(), solutions.iter().map(|s| (s.start.parameters[0], s.start.parameters[1])).collect::<Vec<_>>());
+        }
         Ok((solutions, tolerance))
     }
 

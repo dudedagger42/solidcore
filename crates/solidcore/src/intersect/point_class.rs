@@ -1355,6 +1355,8 @@ impl<O: ClassObject> PointClassification<O> {
 
             // If we fail then for now we'll error out
             if !dropped.success {
+                if std::env::var_os("PROBE_11997").is_some() { eprintln!("PROBE pc curve class {:?} point {:?} ivl {:?} tol {}
+{}", self.point_class, point, ivl, xsect_tol_3d_100, std::backtrace::Backtrace::force_capture()); }
                 return Err(SolidError::sm_err(OP_COMPUTE));
             }
 
@@ -1401,6 +1403,25 @@ impl<O: ClassObject> PointClassification<O> {
 
                 // still no solutions - return an error
                 if solutions.len() != 1 {
+                    if std::env::var_os("PROBE_11997").is_some() {
+                        if let Some(o) = self.object {
+                            if let Ok((bb, f)) = topology_face(access.geometry(), o, OP_COMPUTE) {
+                                if let Ok(Some(s)) = face::p2::surface(bb, f) {
+                                    let nat = s.natural_uv_domain_with_nurb(k);
+                                    if let Ok(vs) = crate::topology::face::p4::vertices(bb, f, None, false, None) { eprintln!("PROBE face verts {:?} faces in brep {}", vs.iter().filter_map(|v| crate::topology::vertex::point(bb, *v).ok()).collect::<Vec<_>>(), 0); }
+                                    { let d = format!("{:?}", s); eprintln!("PROBE surf {}", &d[..d.len().min(700)]); }
+                                    eprintln!("PROBE face {:?} surface {} uv_domain {:?} natural {:?} brep tol {}", f, s.type_string(), uv_domain, nat, bb.tolerance());
+                                    if let Ok(nat) = nat {
+                                        #[derive(Clone, Copy, PartialEq, Debug)] struct PH; impl crate::geom::solution_array::SolutionObject for PH { fn kind(&self) -> crate::geom::solution_array::ObjectKind { crate::geom::solution_array::ObjectKind::Surface } } let r = s.global_point_solve::<PH>(k, None, &nat, SolverOperation::Minimize, point, 1e-2, None, SolutionRequested::default());
+                                        eprintln!("PROBE untrimmed minimize: {:?}", r.map(|v| format!("{:?}", v.as_slice())));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if std::env::var_os("PROBE_11997").is_some() { for t in [1e-4, 1e-3, 1e-2] { let s = access.global_point_solve(k, target, &uv_domain, point, t); eprintln!("PROBE wide tol {t}: {:?}", s.map(|v| v.iter().map(|s| (s.param(0).ok(), s.param(1).ok(), s.solution_value)).collect::<Vec<_>>())); } }
+                    if std::env::var_os("PROBE_11997").is_some() { eprintln!("PROBE pc surface class {:?} point {:?} n {} src_tol {} sols {:?}
+{}", self.point_class, point, solutions.len(), self.src_zone_tol_3d, solutions.iter().map(|s| (s.param(0).ok(), s.param(1).ok(), s.solution_value)).collect::<Vec<_>>(), std::backtrace::Backtrace::force_capture()); }
                     return Err(SolidError::sm_err(OP_COMPUTE));
                 }
             }
