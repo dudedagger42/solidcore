@@ -925,7 +925,16 @@ impl<'t, 's, O: SolutionObject + 't> LsiGlobalSolver<'t, 's, O> {
             .polar_box_unstored(k, surface_id)?
             .has_perpendicular_to_vector(line_vec)
         {
-            for part in self.parts_crossed_once(k, &leaf, line_vec, pass)? {
+            let probe_t = std::time::Instant::now();
+            let probe_parts = self.parts_crossed_once(k, &leaf, line_vec, pass)?;
+            if std::env::var_os("PROBE12539").is_some() {
+                let once = probe_parts.iter().filter(|p| p.once).count();
+                let ms = probe_t.elapsed().as_secs_f64() * 1e3;
+                if probe_parts.len() > 8 || ms > 5.0 {
+                    eprintln!("PROBE12539 parts={} once={} ms={ms:.1} dom={:?} line={:?}/{:?}", probe_parts.len(), once, leaf.domain, self.line_point, self.line_vector);
+                }
+            }
+            for part in probe_parts {
                 let part_leaf = leaf.part(
                     part.domain,
                     part.interval,
