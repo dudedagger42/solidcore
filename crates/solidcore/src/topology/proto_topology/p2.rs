@@ -702,6 +702,7 @@ fn classify_param_on_faces<O: ClassObject>(
     face2: O,
     domain2: &Extent2d,
 ) -> Result<i32> {
+let _pg = crate::probe_t::g("p2::classify_param_on_faces");
     let in_face1 = domain1.contains_point(uv, EFF_ZERO);
     let in_face2 = domain2.contains_point(uv, EFF_ZERO);
     if in_face1 && !in_face2 {
@@ -2637,6 +2638,7 @@ let _pg = crate::probe_t::g("topology/proto_topology/p2::update_faces");
                 .ok_or_else(unknown)?;
         }
 
+        let _s1 = crate::probe_t::g("uf::vd");
         // move VertexDefinitions between split Child1 (pOldFace) and Child2 (pNewFace)
         for vd in self.all_vertex_definitions()? {
             let v = self.vd_ref(vd)?;
@@ -2671,6 +2673,7 @@ let _pg = crate::probe_t::g("topology/proto_topology/p2::update_faces");
             }
         }
 
+        drop(_s1); let _s2 = crate::probe_t::g("uf::ed");
         // move EdgeDefinitions between split Child1 (pOldFace) and Child2 (pNewFace)
         for ed in self.all_edge_definitions()? {
             if Some(ed) == calling_ed {
@@ -2727,6 +2730,7 @@ let _pg = crate::probe_t::g("topology/proto_topology/p2::update_faces");
             }
         }
 
+        drop(_s2); let _s3 = crate::probe_t::g("uf::pf");
         // See if ProtoFaces on the split face need to be split as well (the faces
         // this loop creates are not processed).
         let mut binorm_old = Vec3::UNDEF;

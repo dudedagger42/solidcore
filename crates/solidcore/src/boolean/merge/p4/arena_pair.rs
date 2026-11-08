@@ -825,6 +825,7 @@ impl ProtoBrep<H> for ArenaPair<'_> {
         fp2::uv_domain(self.brep(face)?, fid(face)).ok()
     }
     fn face_trim_uv_domain(&mut self, k: &Kernel, face: H) -> crate::Result<Extent2d> {
+let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::face_trim_uv_domain");
         if face.kind != K_FACE {
             return Err(invalid("not a face handle"));
         }
@@ -859,6 +860,7 @@ impl ProtoBrep<H> for ArenaPair<'_> {
         uv: Point2,
         source_tolerance: f64,
     ) -> crate::Result<PointClassType> {
+let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::face_point_classify_uv");
         if face.kind != K_FACE {
             return Err(invalid("not a face handle"));
         }

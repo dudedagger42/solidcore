@@ -10,7 +10,7 @@ use std::time::Instant;
 #[test]
 #[ignore = "probe"]
 fn probe_8585() -> Result<(), Box<dyn std::error::Error>> {
-    let ks: Vec<usize> = std::env::var("PROBE_KS").ok().map(|v| v.split(',').map(|a| a.parse().unwrap()).collect()).unwrap_or(vec![10, 20]);
+    let ks: Vec<usize> = std::env::var("PROBE_KS").ok().map(|v| v.split(',').map(|a| a.parse().unwrap()).collect()).unwrap_or(vec![20]);
     for overlap in [false, true] {
         for &k in &ks {
             let mut kernel = Kernel::default();
