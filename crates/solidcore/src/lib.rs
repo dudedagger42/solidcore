@@ -39,6 +39,7 @@
 //! [`query`], [`sweep`], [`primitive`].
 #![forbid(unsafe_code)]
 
+pub mod probe_t;
 pub mod error;
 pub mod kernel;
 pub mod limits;
