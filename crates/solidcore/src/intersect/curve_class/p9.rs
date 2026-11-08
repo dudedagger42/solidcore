@@ -421,6 +421,10 @@ impl<O: ClassObject> CurveClassification<O> {
         if std::env::var_os("PROBE_11997").is_some() && (working.natural_interval().max() - 2.4245186696240912).abs() < 1e-9 {
             let a = target.evaluate_point(k, edge.interval.min()).ok();
             let z = target.evaluate_point(k, edge.interval.max()).ok();
+            let (wi, ei) = (working.natural_interval(), edge.interval);
+            let mut best = (f64::INFINITY, 0.0, 0.0);
+            for i in 0..=400 { let s = wi.min() + (wi.max() - wi.min()) * f64::from(i) / 400.0; if let Ok(p) = working.evaluate_point(k, s) { for j in 0..=400 { let t = ei.min() + (ei.max() - ei.min()) * f64::from(j) / 400.0; if let Ok(q) = target.evaluate_point(k, t) { let d = (p - q).length(); if d < best.0 { best = (d, s, t); } } } } }
+            eprintln!("PROBE   min dist curve/edge {:?} (curve t, edge t)", best);
             eprintln!("PROBE edge_solutions: edge {:?}..{:?} kind {} tol {tolerance} edge_zone {edge_zone} n {} sols {:?}", a, z, target.type_string(), solutions.len(), solutions.iter().map(|s| (s.start.parameters[0], s.start.parameters[1])).collect::<Vec<_>>());
         }
         Ok((solutions, tolerance))

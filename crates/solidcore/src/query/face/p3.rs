@@ -2116,6 +2116,10 @@ pub fn sector_classify_curve_on(
         curve_zone_tol_3d,
     );
 
+    let probe = std::env::var_os("PROBE_11997_SECTOR").is_some();
+    if probe {
+        eprintln!("PROBE sector face {f:?} eu1 {:?} eu2 {:?} t {curve_param} orient {curve_orientation:?} xsect {xsect_tol:e} czone {curve_zone_tol_3d:e} eu_zones {:e} {:e} sing {}", cp_eu1, cp_eu2, eu1_in.zone_tol_3d, eu2_in.zone_tol_3d, input.on_singularity);
+    }
     // init edgeuse params at curve/edge intersection
     let mut new_eu1_param = eu1_in.param;
     let mut new_eu2_param = eu2_in.param;
@@ -2257,6 +2261,9 @@ pub fn sector_classify_curve_on(
                 if curve_pv[1].unitize().is_ok() {
                     let dot1 = bin1.dot(curve_pv[1]);
                     let dot2 = bin2_eval.binormal.dot(curve_pv[1]);
+                    if probe {
+                        eprintln!("PROBE sector count {count} lowwork dot1 {dot1} dot2 {dot2} tan1 {tan1:?} bin1 {bin1:?} ctan {:?} pnt1 {pnt1:?} cpt {:?}", curve_pv[1], curve_pv[0]);
+                    }
                     if dot1 > 0.1 && dot2 > 0.1 {
                         res.inside = true;
                         return Ok(res);
@@ -2383,6 +2390,9 @@ pub fn sector_classify_curve_on(
             (0.0, 0.0, 0.0)
         };
 
+        if probe {
+            eprintln!("PROBE sector count {count} inside {inside} angs {ang_eu1_eu2} {ang_eu1_curve} {ang_eu2_curve} min_dist {min_dist:e} step {step_off_distance:e}");
+        }
         // If the sector is too small then we can't classify it as inside.
         if ang_eu1_eu2 < EFF_ZERO_SQRT * 1000.0 {
             inside = false;
