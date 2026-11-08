@@ -138,10 +138,12 @@ struct CurveHandle(Extent1d);
 
 impl SolutionObject for CurveHandle {
     fn kind(&self) -> ObjectKind {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::kind");
         ObjectKind::Curve
     }
 
     fn natural_interval(&self) -> Option<Extent1d> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::natural_interval");
         Some(self.0)
     }
 }
@@ -277,10 +279,12 @@ pub struct NoMates;
 
 impl<O> Mates<O> for NoMates {
     fn other_mate(&self, _brep_entity: O) -> Option<O> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::other_mate");
         None
     }
 
     fn remove_relationship(&mut self, _brep_entity: O, _other_entity: O) -> Result<()> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::remove_relationship");
         Err(SolidError::sm_err(
             "topology::proto_topology::p3::remove_relationship",
         ))
@@ -306,6 +310,7 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
         pc1: &mut PointClassification<O>,
         pc2: &mut PointClassification<O>,
     ) -> Result<(Option<ProtoVertexId>, bool)> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::find_or_create_proto_vertex_pcs");
         // Skip PtXSects that don't classify to Region, Face, Edge, or Vertex in both Breps
         if !can_imprint(pc1.point_class()) {
             return Ok((None, false));
@@ -364,6 +369,7 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
         classification2: &CurveClassification<O>,
         ci2: &mut CurveInterval<O>,
     ) -> Result<(Option<ProtoEdgeId>, bool)> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::find_or_create_proto_edge");
         crate::profile::profile_scope!(k, "probe::find_or_create_proto_edge");
         let cc_curve = classification1.curve();
         let this_ivl = ci1.interval;
@@ -549,6 +555,7 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
         mid_pv: Option<ProtoVertexId>,
         top_pe: Option<ProtoEdgeId>,
     ) -> Result<(Option<VertexDefId>, Option<EdgeDefId>)> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::edge_definition_split");
         /// `cbiFudge`.
         const CBI_FUDGE: f64 = 10.0;
 
@@ -694,6 +701,7 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
 
     /// Sets an edge definition's interval.
     fn set_ed_interval(&mut self, ed: EdgeDefId, ivl: Extent1d) -> Result<()> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::set_ed_interval");
         self.edge_def_mut(ed)
             .ok_or(dangling("edge definition is deleted"))?
             .set_xsect_interval(ivl);
@@ -702,6 +710,7 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
 
     /// Sets an edge definition's 3D curve.
     fn set_ed_curve_3d(&mut self, ed: EdgeDefId, curve: Option<O>) -> Result<()> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::set_ed_curve_3d");
         self.edge_def_mut(ed)
             .ok_or(dangling("edge definition is deleted"))?
             .set_xsect_curve_3d(curve);
@@ -717,6 +726,7 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
         ed: EdgeDefId,
         curve: Option<O>,
     ) -> Result<()> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::trim_ed_curve");
         let mut ivl = self
             .edge_def(ed)
             .ok_or(dangling("edge definition is deleted"))?
@@ -753,6 +763,7 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
         pe: ProtoEdgeId,
         dt: f64,
     ) -> Result<(Option<ProtoVertexId>, Option<ProtoEdgeId>)> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::proto_edge_split");
         let e = self
             .proto_edge(pe)
             .ok_or(dangling("proto edge is deleted"))?;
@@ -918,6 +929,7 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
         pe1: ProtoEdgeId,
         pe2: ProtoEdgeId,
     ) -> Result<Vec<O>> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::split_intersecting_proto_edges");
         let mut deleted: Vec<O> = Vec::new();
         // fork bcc6f01 (`SplitIntersectingProtoEdges`): the splits, combines and
         // removals pass on their statuses.
@@ -1083,6 +1095,7 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
         pv2: Option<ProtoVertexId>,
         pass: bool,
     ) -> Result<()> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::combine_and_delete_pvs");
         if let (Some(a), Some(b)) = (pv1, pv2) {
             if a != b {
                 ignore_soft(passed_on(self.combine_proto_vertex(a, b), pass)?)?;
@@ -1114,6 +1127,7 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
         brep: &mut (impl ProtoBrep<O> + BrepGlue<O>),
         mates: &mut dyn Mates<O>,
     ) -> Result<Vec<O>> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::glue_coincident_brep_vertices");
         // statuses SMLib drops, passed on with `ssi_proto_topology_statuses_pass_on`
         // (fork bcc6f01)
         let pass = k.fixes.ssi_proto_topology_statuses_pass_on;
@@ -1499,6 +1513,7 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
         geometry: &mut impl ProtoBrep<O>,
         ti_approx_tol_3d: f64,
     ) -> Result<Vec<O>> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::resolve_overlapping_proto_edges");
         // statuses SMLib drops, passed on with `ssi_proto_topology_statuses_pass_on`
         // (fork bcc6f01)
         let pass = k.fixes.ssi_proto_topology_statuses_pass_on;
@@ -2004,6 +2019,7 @@ mod tests {
 
     impl ClassObject for H {
         fn class_kind(&self) -> ClassObjectKind {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::class_kind");
             self.1
         }
     }
@@ -2030,11 +2046,13 @@ mod tests {
 
     impl Pool {
         fn new() -> Self {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::new");
             Self::with_length(10.0)
         }
 
         /// As [`Pool::new`] with edges `length` long.
         fn with_length(length: f64) -> Self {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::with_length");
             let line = Line::create_line_segment(
                 3,
                 Vec3::new(0.0, 0.0, 0.0),
@@ -2053,23 +2071,28 @@ mod tests {
 
     impl ClassGeometry<H> for Pool {
         fn curve(&self, o: H) -> Option<&Curve> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::curve");
             (o.1 == ClassObjectKind::Curve)
                 .then(|| self.curves.get(o.0))
                 .flatten()
         }
         fn surface(&self, _o: H) -> Option<&Surface> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::surface");
             None
         }
         fn volume(&self, _o: H) -> Option<&Volume> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::volume");
             None
         }
         fn point(&self, _o: H) -> Option<Point3> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::point");
             None
         }
     }
 
     impl ProtoGeometry<H> for Pool {
         fn curve_mut(&mut self, o: H) -> Option<&mut Curve> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::curve_mut");
             (o.1 == ClassObjectKind::Curve)
                 .then(|| self.curves.get_mut(o.0))
                 .flatten()
@@ -2078,15 +2101,19 @@ mod tests {
 
     impl ProtoTopology<H> for Pool {
         fn vertex_use_faces(&self, _vertex: H) -> Result<Vec<Option<H>>> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::vertex_use_faces");
             Ok(Vec::new())
         }
         fn edge_use_faces(&self, _edge: H) -> Result<Vec<Option<H>>> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::edge_use_faces");
             Ok(Vec::new())
         }
         fn edge_start_vertex(&self, _edge: H) -> Result<Option<H>> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::edge_start_vertex");
             Ok(Some(vtx(0)))
         }
         fn edge_other_vertex(&self, _edge: H, _vertex: Option<H>) -> Result<Option<H>> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::edge_other_vertex");
             Ok(Some(if self.squeezed.is_empty() {
                 vtx(1)
             } else {
@@ -2094,6 +2121,7 @@ mod tests {
             }))
         }
         fn vertex_point(&self, vertex: H) -> Result<Point3> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::vertex_point");
             Ok(match vertex.0 {
                 2 => Point3::new(0.0, 5.0, 0.0),
                 3 => Point3::new(0.0, -5.0, 0.0),
@@ -2101,43 +2129,55 @@ mod tests {
             })
         }
         fn edge_brep(&self, _edge: H) -> Result<Option<crate::geom::attribute::ObjectKey>> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::edge_brep");
             Ok(None)
         }
         fn edge_faces(&self, _edge: H) -> Result<Vec<H>> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::edge_faces");
             Ok(Vec::new())
         }
     }
 
     impl ProtoBrep<H> for Pool {
         fn edge_interval(&self, _edge: H) -> Option<Extent1d> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::edge_interval");
             Some(self.curves.first()?.natural_interval())
         }
         fn edge_curve(&self, _edge: H) -> Option<Option<H>> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::edge_curve");
             Some(Some(H(0, ClassObjectKind::Curve)))
         }
         fn topology_tolerance(&self, _topo: H) -> Option<f64> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::topology_tolerance");
             Some(1e-5)
         }
         fn face_uv_domain(&self, _face: H) -> Option<Extent2d> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::face_uv_domain");
             None
         }
         fn set_face_uv_domain(&mut self, _face: H, _domain: Extent2d) -> Option<()> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::set_face_uv_domain");
             None
         }
         fn face_surface(&self, _face: H) -> Option<Option<H>> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::face_surface");
             None
         }
         fn edge_edgeuse_of_face(&self, _edge: H, _face: H) -> Result<Option<H>> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::edge_edgeuse_of_face");
             Ok(None)
         }
         fn edge_is_connected_to_face(&self, _edge: H, _face: H) -> Result<bool> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::edge_is_connected_to_face");
             Ok(false)
         }
         fn insert_curve(&mut self, curve: Curve) -> Option<H> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::insert_curve");
             self.curves.push(curve);
             Some(H(self.curves.len() - 1, ClassObjectKind::Curve))
         }
         fn vertex_common_edges(&self, v1: H, v2: H) -> Result<Vec<H>> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::vertex_common_edges");
             Ok(if (v1, v2) == (vtx(0), vtx(1)) {
                 vec![edg(0), edg(1)]
             } else {
@@ -2151,9 +2191,11 @@ mod tests {
             _do_point_classify: bool,
             _cc: &mut CurveClassification<H>,
         ) -> Result<bool> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::face_curve_on_classify");
             Ok(false)
         }
         fn face_trim_uv_domain(&mut self, _k: &Kernel, _face: H) -> Result<Extent2d> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::face_trim_uv_domain");
             Err(SolidError::invalid_input("test", "unused"))
         }
         fn face_point_classify_uv(
@@ -2163,6 +2205,7 @@ mod tests {
             _uv: Point2,
             _source_tolerance: f64,
         ) -> Result<PointClassType> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::face_point_classify_uv");
             Err(SolidError::invalid_input("test", "unused"))
         }
         fn brep_squeeze_edge(
@@ -2172,6 +2215,7 @@ mod tests {
             edge: H,
             _survivor: H,
         ) -> Result<()> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::brep_squeeze_edge");
             self.squeezed.push(edge);
             Ok(())
         }
@@ -2183,6 +2227,7 @@ mod tests {
             _tolerance: f64,
             _boundary_intersections: bool,
         ) -> Result<PointClassification<H>> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::brep_point_3d_classify");
             Err(SolidError::invalid_input("test", "unused"))
         }
         fn brep_make_edge_in_face(
@@ -2198,15 +2243,18 @@ mod tests {
             _orientation: OrientType,
             _tolerance: f64,
         ) -> Result<(Option<H>, Option<H>, Option<H>)> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::brep_make_edge_in_face");
             Err(SolidError::invalid_input("test", "unused"))
         }
         fn edgeuse_evaluate_binormal(&mut self, _k: &Kernel, _eu: H, _param: f64) -> Result<Vec3> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::edgeuse_evaluate_binormal");
             Err(SolidError::invalid_input("test", "unused"))
         }
     }
 
     impl BrepGlue<H> for Pool {
         fn delete_edge(&mut self, _k: &mut Kernel, _brep: H, edge: H) -> Result<()> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::delete_edge");
             self.deleted.push(edge);
             Ok(())
         }
@@ -2218,6 +2266,7 @@ mod tests {
             v2: H,
             _opt_wire_edges_in_brep: Option<&[H]>,
         ) -> Result<()> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::glue_vertices");
             let again = self.glued.iter().any(|&(_, gone)| gone == v2);
             self.glued.push((v1, v2));
             if again {
@@ -2231,6 +2280,7 @@ mod tests {
     }
 
     fn region_pc(o: H) -> PointClassification<H> {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::region_pc");
         let mut pc = PointClassification::new(1e-5);
         pc.set_class_object(PointClassType::Region, Some(o));
         pc
@@ -2238,6 +2288,7 @@ mod tests {
 
     #[test]
     fn glue_stops_once_the_second_vertex_is_glued_away() {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::glue_stops_once_the_second_vertex_is_glued_away");
         // da8d05e (#371): two coincident vertices joined by two long common edges;
         // gluing for the first edge deletes the second vertex, which the second
         // edge's step glued again (upstream: a use-after-free)
@@ -2269,6 +2320,7 @@ mod tests {
 
     #[test]
     fn glue_deletes_a_second_short_common_edge_after_the_squeeze() {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::glue_deletes_a_second_short_common_edge_after_the_squeeze");
         // the delete branch runs as upstream after a squeeze;
         // boolean.api_brep crossing_creases_union_d1e-05
         let mut k = Kernel::default();
@@ -2303,6 +2355,7 @@ mod tests {
     /// and not by a later, more grazing one (WR-410, #1059).
     #[test]
     fn issue_1059_a_steeper_crossing_places_the_vertex_definition() {
+let _pg = crate::probe_t::g("topology/proto_topology/p3::issue_1059_a_steeper_crossing_places_the_vertex_definition");
         let k = Kernel::default();
         let pool = Pool::new();
         let curve = H(0, ClassObjectKind::Curve);

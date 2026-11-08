@@ -98,6 +98,7 @@ impl CurveIdentity<'_> {
         curve: &mut Curve,
         env: &mut edge::NotifyEnv<'_>,
     ) -> Result<crate::geom::object::ObjectRef> {
+let _pg = crate::probe_t::g("topology/brep/p9::resolve");
         match self {
             Self::Legacy(resolve) => Ok(resolve(edge, curve.type_code())),
             Self::Checked(resolve) => resolve(edge, curve.type_code()),
@@ -115,6 +116,7 @@ pub fn issue_curve_identity(
     curve: &mut Curve,
     env: &mut edge::NotifyEnv<'_>,
 ) -> Result<crate::geom::object::ObjectRef> {
+let _pg = crate::probe_t::g("topology/brep/p9::issue_curve_identity");
     let type_code = curve.type_code();
     let context = env.context.as_deref_mut().ok_or_else(|| {
         SolidError::invalid_input(
@@ -165,6 +167,7 @@ pub fn find_infinite_region(
     shell: Option<ShellId>,
     bbox: Option<&crate::geom::extent3d::Extent3d>,
 ) -> Result<Option<RegionId>> {
+let _pg = crate::probe_t::g("topology/brep/p9::find_infinite_region");
     use crate::intersect::point_class::PointClassification;
     use crate::topology::brep_cache::CacheObject;
     use crate::topology::shell::{ShellRayInput, ShellRayState};
@@ -398,10 +401,12 @@ pub fn find_infinite_region(
 }
 
 fn brep_regions(b: &Brep) -> Result<Vec<RegionId>> {
+let _pg = crate::probe_t::g("topology/brep/p9::brep_regions");
     crate::topology::brep::p1::regions(b, None)
 }
 
 fn brep_edges(b: &Brep) -> Result<Vec<EdgeId>> {
+let _pg = crate::probe_t::g("topology/brep/p9::brep_edges");
     crate::topology::brep::p1::edges(b, None)
 }
 
@@ -430,6 +435,7 @@ fn brep_ray_fire<O>(
 }
 
 fn ray_direction(direction: Vec3) -> Result<Vec3> {
+let _pg = crate::probe_t::g("topology/brep/p9::ray_direction");
     direction.unitize().map_err(|_| SolidError::Upstream {
         operation: OP,
         code: 1007,
@@ -443,10 +449,12 @@ fn ray_direction(direction: Vec3) -> Result<Vec3> {
 /// resolve an owner under the query's identities) is propagated instead, so a naming
 /// mismatch cannot pass for a missed ray and silently select another region.
 fn ray_success(status: &Result<()>) -> Result<bool> {
+let _pg = crate::probe_t::g("topology/brep/p9::ray_success");
     Ok(crate::error::native_failure(status.clone())?.is_some())
 }
 
 fn is_intersector_approx(curve: &Curve) -> Result<bool> {
+let _pg = crate::probe_t::g("topology/brep/p9::is_intersector_approx");
     use crate::curve::curve::CurveKind;
     match curve.kind() {
         CurveKind::BSpline(c) => c.is_intersector_approx(),
@@ -472,6 +480,7 @@ pub fn orient_sheet_surfaces(
     same: bool,
     env: &mut edge::NotifyEnv<'_>,
 ) -> Result<()> {
+let _pg = crate::probe_t::g("topology/brep/p9::orient_sheet_surfaces");
     let faces = brep_faces(b)?;
     let Some(face) = face.filter(|face| faces.contains(face)) else {
         return Err(SolidError::sm_err(OP));
@@ -528,21 +537,25 @@ pub fn orient_sheet_surfaces(
 }
 
 fn brep_faces(b: &Brep) -> Result<Vec<FaceId>> {
+let _pg = crate::probe_t::g("topology/brep/p9::brep_faces");
     crate::topology::brep::p1::faces(b, None)
 }
 
 /// `IsSheet()` ([`crate::topology::brep::p2::is_sheet`]).
 fn is_sheet(k: &mut Kernel, b: &Brep) -> Result<bool> {
+let _pg = crate::probe_t::g("topology/brep/p9::is_sheet");
     crate::topology::brep::p2::is_sheet(k, b)
 }
 
 /// `IsOrientedSheet()` ([`crate::topology::brep::p2::is_oriented_sheet`]).
 fn is_oriented_sheet(k: &mut Kernel, b: &Brep) -> Result<bool> {
+let _pg = crate::probe_t::g("topology/brep/p9::is_oriented_sheet");
     crate::topology::brep::p2::is_oriented_sheet(k, b)
 }
 
 /// `SwapUV()` ([`crate::topology::brep::p2::swap_uv`], which claims its own mark).
 fn swap_brep_uv(k: &mut Kernel, b: &mut Brep, env: &mut edge::NotifyEnv<'_>) -> Result<()> {
+let _pg = crate::probe_t::g("topology/brep/p9::swap_brep_uv");
     let mut marks = crate::topology::topology_traverser::Marks::default();
     crate::topology::brep::p2::swap_uv(k, b, &mut marks, env)
 }
@@ -555,6 +568,7 @@ fn swap_face_uv(
     face: FaceId,
     env: &mut edge::NotifyEnv<'_>,
 ) -> Result<()> {
+let _pg = crate::probe_t::g("topology/brep/p9::swap_face_uv");
     crate::topology::brep::p1::swap_face_uv(
         k,
         b,
@@ -576,6 +590,7 @@ pub fn make_shell_vertex(
     point: Point3,
     env: &mut edge::NotifyEnv<'_>,
 ) -> Result<(ShellId, VertexId)> {
+let _pg = crate::probe_t::g("topology/brep/p9::make_shell_vertex");
     make_shell_vertex_with_context(
         None,
         b,
@@ -594,6 +609,7 @@ pub fn make_shell_vertex_with_kernel_context(
     point: Point3,
     stores: &mut edge::NotificationStores<'_>,
 ) -> Result<(ShellId, VertexId)> {
+let _pg = crate::probe_t::g("topology/brep/p9::make_shell_vertex_with_kernel_context");
     make_shell_vertex_with_state(
         k,
         b,
@@ -610,6 +626,7 @@ pub(crate) fn make_shell_vertex_with_state(
     point: Point3,
     state: &mut edge::NotifyState<'_>,
 ) -> Result<(ShellId, VertexId)> {
+let _pg = crate::probe_t::g("topology/brep/p9::make_shell_vertex_with_state");
     make_shell_vertex_with_context(Some(&mut k.context), b, region, point, state)
 }
 
@@ -622,6 +639,7 @@ pub(crate) fn make_shell_vertex_with_context(
     point: Point3,
     state: &mut edge::NotifyState<'_>,
 ) -> Result<(ShellId, VertexId)> {
+let _pg = crate::probe_t::g("topology/brep/p9::make_shell_vertex_with_context");
     let region = match region {
         Some(region) => Some(region),
         // GetInfiniteRegion: the stored m_pInfiniteRegion.
@@ -669,6 +687,7 @@ fn make_shell_vertex_topology(
     region: Option<RegionId>,
     env: &mut edge::NotifyEnv<'_>,
 ) -> Result<(ShellId, VertexId)> {
+let _pg = crate::probe_t::g("topology/brep/p9::make_shell_vertex_topology");
     // MakeShellVertexTopology sends no notification; the caller registers the records
     let _ = env;
     crate::topology::brep::p2::make_shell_vertex_topology(b, region)
@@ -687,6 +706,7 @@ pub fn make_vertex_loop(
     orientation: OrientType,
     env: &mut edge::NotifyEnv<'_>,
 ) -> Result<(LoopId, VertexId)> {
+let _pg = crate::probe_t::g("topology/brep/p9::make_vertex_loop");
     b.face(face)?;
     face_notify(b, face, env, NotifyOperation::PreEdit)?;
     let loop_ = b.add_loop_record(Loop {
@@ -759,10 +779,12 @@ pub fn make_vertex_loop(
 }
 
 fn register_entities(env: &mut edge::NotifyEnv<'_>, entities: &[EntityRef]) {
+let _pg = crate::probe_t::g("topology/brep/p9::register_entities");
     register_state_entities(&mut edge::NotifyState::from_env(env), entities);
 }
 
 fn register_state_entities(state: &mut edge::NotifyState<'_>, entities: &[EntityRef]) {
+let _pg = crate::probe_t::g("topology/brep/p9::register_state_entities");
     for &entity in entities {
         state.records.or_default((state.key_of)(entity).key);
     }
@@ -774,6 +796,7 @@ fn set_vertex_point(
     point: Point3,
     env: &mut edge::NotifyEnv<'_>,
 ) -> Result<()> {
+let _pg = crate::probe_t::g("topology/brep/p9::set_vertex_point");
     vertex::set_point(
         b,
         v,
@@ -790,6 +813,7 @@ fn set_vertex_point(
 /// `add_*_record` already appended the record at allocation, and no record of the
 /// same kind is allocated in between, so the list order is native; this checks it.
 fn insert_brep_entity(b: &mut Brep, entity: EntityRef) -> Result<()> {
+let _pg = crate::probe_t::g("topology/brep/p9::insert_brep_entity");
     let listed = match entity {
         EntityRef::Face(f) => b.face_list().last() == Some(&f),
         EntityRef::Edge(e) => b.edge_list().last() == Some(&e),
@@ -814,6 +838,7 @@ fn brep_notify(
     other: Option<EntityRef>,
     geometry: Option<crate::geom::object::ObjectRef>,
 ) -> Result<()> {
+let _pg = crate::probe_t::g("topology/brep/p9::brep_notify");
     let object = (env.key_of)(object);
     let other = other.map(env.key_of);
     let data = match operation {
@@ -836,6 +861,7 @@ fn brep_notify_call(
     operation: NotifyOperation,
     data: [Option<crate::geom::object::ObjectRef>; 3],
 ) -> Result<()> {
+let _pg = crate::probe_t::g("topology/brep/p9::brep_notify_call");
     // no B-rep cache is held by the caller (`brep::p2::notify` with no cache slot)
     let data = data.map(|d| d.map(crate::topology::brep::p2::NotifyArg::Object));
     crate::topology::brep::p2::notify(b, env, None, operation, data)
@@ -847,6 +873,7 @@ fn face_notify(
     env: &mut edge::NotifyEnv<'_>,
     operation: NotifyOperation,
 ) -> Result<()> {
+let _pg = crate::probe_t::g("topology/brep/p9::face_notify");
     let data = [
         Some((env.key_of)(EntityRef::Face(face))),
         Some(brep_ref(b)),
@@ -862,6 +889,7 @@ fn face_notify_call(
     operation: NotifyOperation,
     data: [Option<crate::geom::object::ObjectRef>; 3],
 ) -> Result<()> {
+let _pg = crate::probe_t::g("topology/brep/p9::face_notify_call");
     crate::topology::face::p3::notify(b, face, env, None, operation, data)
 }
 
@@ -870,6 +898,7 @@ fn required<T>(v: Option<T>, reason: &'static str) -> Result<T> {
 }
 
 fn brep_ref(b: &Brep) -> crate::geom::object::ObjectRef {
+let _pg = crate::probe_t::g("topology/brep/p9::brep_ref");
     crate::geom::object::ObjectRef {
         key: b.key(),
         type_code: 16011,
@@ -882,6 +911,7 @@ fn set_curve_owner(
     env: &mut edge::NotifyEnv<'_>,
     curve_ref: crate::geom::object::ObjectRef,
 ) -> Result<()> {
+let _pg = crate::probe_t::g("topology/brep/p9::set_curve_owner");
     let owner = (env.key_of)(EntityRef::Edge(edge_id));
     let curve = required(b.edge_mut(edge_id)?.curve.as_mut(), "edge without curve")?;
     let (_, change) = curve.set_owner(Some(owner), None);
@@ -912,6 +942,7 @@ struct SplitUvInput {
 }
 
 fn split_uv_trim(k: &Kernel, b: &mut Brep, input: SplitUvInput) -> Result<()> {
+let _pg = crate::probe_t::g("topology/brep/p9::split_uv_trim");
     let SplitUvInput {
         original,
         new,
@@ -955,6 +986,7 @@ pub fn make_vertex_split_edge(
     env: &mut edge::NotifyEnv<'_>,
     curve_ref: &dyn Fn(EdgeId, i64) -> crate::geom::object::ObjectRef,
 ) -> Result<SplitEdgeOutput> {
+let _pg = crate::probe_t::g("topology/brep/p9::make_vertex_split_edge");
     make_vertex_split_edge_with_state(
         k,
         b,
@@ -977,6 +1009,7 @@ pub fn make_vertex_split_edge_with_kernel_context(
     stores: &mut edge::NotificationStores<'_>,
     curve_ref: &dyn Fn(EdgeId, i64) -> crate::geom::object::ObjectRef,
 ) -> Result<SplitEdgeOutput> {
+let _pg = crate::probe_t::g("topology/brep/p9::make_vertex_split_edge_with_kernel_context");
     make_vertex_split_edge_with_state(
         k,
         b,
@@ -995,6 +1028,7 @@ pub(crate) fn make_vertex_split_edge_with_state(
     state: &mut edge::NotifyState<'_>,
     curve_ref: &dyn Fn(EdgeId, i64) -> crate::geom::object::ObjectRef,
 ) -> Result<SplitEdgeOutput> {
+let _pg = crate::probe_t::g("topology/brep/p9::make_vertex_split_edge_with_state");
     make_vertex_split_edge_with_identity(k, b, edge_id, parameter, state, &|e, kind| {
         Ok(curve_ref(e, kind))
     })
@@ -1011,6 +1045,7 @@ pub(crate) fn make_vertex_split_edge_with_identity(
     state: &mut edge::NotifyState<'_>,
     curve_ref: &dyn Fn(EdgeId, i64) -> Result<crate::geom::object::ObjectRef>,
 ) -> Result<SplitEdgeOutput> {
+let _pg = crate::probe_t::g("topology/brep/p9::make_vertex_split_edge_with_identity");
     make_vertex_split_edge_with_curve_identity_state(
         k,
         b,
@@ -1032,6 +1067,7 @@ pub fn make_vertex_split_edge_with_curve_identity(
     env: &mut edge::NotifyEnv<'_>,
     curve_identity: CurveIdentity<'_>,
 ) -> Result<SplitEdgeOutput> {
+let _pg = crate::probe_t::g("topology/brep/p9::make_vertex_split_edge_with_curve_identity");
     make_vertex_split_edge_with_curve_identity_state(
         k,
         b,
@@ -1053,6 +1089,7 @@ pub fn make_vertex_split_edge_with_kernel_curve_identity(
     stores: &mut edge::NotificationStores<'_>,
     curve_identity: CurveIdentity<'_>,
 ) -> Result<SplitEdgeOutput> {
+let _pg = crate::probe_t::g("topology/brep/p9::make_vertex_split_edge_with_kernel_curve_identity");
     make_vertex_split_edge_with_curve_identity_state(
         k,
         b,
@@ -1071,6 +1108,7 @@ pub(crate) fn make_vertex_split_edge_with_curve_identity_state(
     state: &mut edge::NotifyState<'_>,
     curve_identity: CurveIdentity<'_>,
 ) -> Result<SplitEdgeOutput> {
+let _pg = crate::probe_t::g("topology/brep/p9::make_vertex_split_edge_with_curve_identity_state");
     let out = SplitEdgeOutput::default();
     if !b.editing_enabled() {
         return Ok(out);
@@ -1453,6 +1491,7 @@ pub fn make_edge_in_face_with_vu(
     env: &mut edge::NotifyEnv<'_>,
     curve_ref: &dyn Fn(EdgeId, i64) -> crate::geom::object::ObjectRef,
 ) -> Result<EdgeInFaceOutput> {
+let _pg = crate::probe_t::g("topology/brep/p9::make_edge_in_face_with_vu");
         crate::profile::profile_scope!(k, "probe::make_edge_in_face_with_vu");
     make_edge_in_face_with_vu_with_curve_identity(
         k,
@@ -1473,6 +1512,7 @@ pub fn make_edge_in_face_with_vu_with_curve_identity(
     env: &mut edge::NotifyEnv<'_>,
     curve_identity: CurveIdentity<'_>,
 ) -> Result<EdgeInFaceOutput> {
+let _pg = crate::probe_t::g("topology/brep/p9::make_edge_in_face_with_vu_with_curve_identity");
     use crate::topology::{
         face::{p1 as fp1, p2 as fp2},
         loopuse as lu,
@@ -1995,6 +2035,7 @@ fn find_vertex_sector(
     b: &mut Brep,
     input: VertexSectorInput<'_>,
 ) -> Result<Option<VertexuseId>> {
+let _pg = crate::probe_t::g("topology/brep/p9::find_vertex_sector");
     let VertexSectorInput {
         face,
         vertex,
@@ -2026,6 +2067,7 @@ fn find_vertex_sector(
 }
 
 fn remove_old_loop_vertices(b: &mut Brep, vu: VertexuseId) -> Result<()> {
+let _pg = crate::probe_t::g("topology/brep/p9::remove_old_loop_vertices");
     crate::topology::brep::p1::rm_and_del_old_loop_vertices(b, vu)
 }
 
@@ -2040,6 +2082,7 @@ fn redistribute_seam_trims(
     seam: SurfParamType,
     domain: &crate::geom::extent2d::Extent2d,
 ) -> Result<()> {
+let _pg = crate::probe_t::g("topology/brep/p9::redistribute_seam_trims");
     let trim = match original_trim_owner {
         Some(owner) => Some(required(
             b.edgeuse(owner)?.uv_trim_curve.clone(),
@@ -2065,6 +2108,7 @@ fn set_face_tolerance(
     update_only_if_larger: bool,
     cascade_to_boundaries: bool,
 ) -> Result<()> {
+let _pg = crate::probe_t::g("topology/brep/p9::set_face_tolerance");
     crate::topology::face::p3::set_tolerance(
         b,
         face,
@@ -2082,6 +2126,7 @@ fn compute_loop_orientation(
     uv_bounds: Option<&mut crate::geom::extent2d::Extent2d>,
     do_3d_loop_computation: bool,
 ) -> Result<OrientType> {
+let _pg = crate::probe_t::g("topology/brep/p9::compute_loop_orientation");
     crate::topology::face::p3::compute_loop_orientation(
         k,
         b,
@@ -2099,6 +2144,7 @@ fn faceuse_remove_loopuse(
     fu: crate::topology::FaceuseId,
     lu: crate::topology::LoopuseId,
 ) -> Result<()> {
+let _pg = crate::probe_t::g("topology/brep/p9::faceuse_remove_loopuse");
     if b.loopuse(lu)?.faceuse != Some(fu) {
         return Err(SolidError::sm_err(OP));
     }
@@ -2117,6 +2163,7 @@ fn faceuse_pre_insert_loopuse(
     fu: crate::topology::FaceuseId,
     lu: crate::topology::LoopuseId,
 ) -> Result<()> {
+let _pg = crate::probe_t::g("topology/brep/p9::faceuse_pre_insert_loopuse");
     b.faceuse_mut(fu)?.loopuses.insert(0, lu);
     b.loopuse_mut(lu)?.faceuse = Some(fu);
     Ok(())
@@ -2127,6 +2174,7 @@ fn shell_post_insert(
     shell: ShellId,
     faceuse: crate::topology::FaceuseId,
 ) -> Result<()> {
+let _pg = crate::probe_t::g("topology/brep/p9::shell_post_insert");
     use crate::topology::shell::ShellMembers;
     let members = &mut b.shell_mut(shell)?.members;
     match members {
@@ -2160,6 +2208,7 @@ fn shell_post_insert(
 }
 
 fn delete_loop_records(b: &mut Brep, loop_: LoopId, env: &mut edge::NotifyEnv<'_>) -> Result<()> {
+let _pg = crate::probe_t::g("topology/brep/p9::delete_loop_records");
     let (a, z) = crate::topology::loopuse::loop_loopuses(b, loop_)?;
     let z = required(z, "deleted loopuse without mate")?;
     for entity in [
@@ -2194,6 +2243,7 @@ fn delete_loop_records(b: &mut Brep, loop_: LoopId, env: &mut edge::NotifyEnv<'_
 }
 
 fn sync_edge_cache(b: &mut Brep, edge_id: EdgeId) -> Result<()> {
+let _pg = crate::probe_t::g("topology/brep/p9::sync_edge_cache");
     // The shared native-graph importer stores primary/mate VU order here,
     // independently of their orientation relative to the 3D curve.
     let primary_vertex = required(
@@ -2209,6 +2259,7 @@ fn sync_edge_cache(b: &mut Brep, edge_id: EdgeId) -> Result<()> {
 }
 
 fn sync_face_cache(b: &mut Brep, face: FaceId) -> Result<()> {
+let _pg = crate::probe_t::g("topology/brep/p9::sync_face_cache");
     use crate::topology::loopuse as lu;
     let loops = crate::topology::face::p2::loops(b, face, false, None)?;
     b.face_mut(face)?.loops.clone_from(&loops);
@@ -2239,6 +2290,7 @@ fn redistribute_inner_loops(
     new_loop: LoopId,
     env: &mut edge::NotifyEnv<'_>,
 ) -> Result<()> {
+let _pg = crate::probe_t::g("topology/brep/p9::redistribute_inner_loops");
     use crate::intersect::point_class::{PointClassType, PointClassification};
     use crate::topology::{
         face::{p1 as fp1, p2 as fp2},
@@ -2421,6 +2473,7 @@ fn new_face_outer_box(
     face: FaceId,
     new_face: FaceId,
 ) -> Result<Option<crate::geom::extent3d::Extent3d>> {
+let _pg = crate::probe_t::g("topology/brep/p9::new_face_outer_box");
     use crate::nurbs::b_spline_curve::BoundingBoxRequest;
     use crate::surface::surface::SurfaceKind;
     let on_plane = |f: FaceId| -> Result<bool> {
@@ -2461,6 +2514,7 @@ fn new_face_outer_box(
 }
 
 fn edge_sample(k: &Kernel, b: &Brep, edge: EdgeId) -> Result<(Point3, f64)> {
+let _pg = crate::probe_t::g("topology/brep/p9::edge_sample");
     let record = b.edge(edge)?;
     let point = required(record.curve.as_ref(), "sample edge without curve")?
         .evaluate_point(k, record.interval.evaluate(0.34567))?;
@@ -2468,6 +2522,7 @@ fn edge_sample(k: &Kernel, b: &Brep, edge: EdgeId) -> Result<(Point3, f64)> {
 }
 
 fn face_outer_edges(b: &Brep, face: FaceId) -> Result<Vec<EdgeId>> {
+let _pg = crate::probe_t::g("topology/brep/p9::face_outer_edges");
     // SmFace::GetEdges(..., NULL, TRUE): only the upward outer loop, unique edges.
     let mut result = Vec::new();
     for loop_ in crate::topology::face::p2::outer_loops(b, face)? {
@@ -2486,6 +2541,7 @@ fn computed_uv_domain(
     b: &mut Brep,
     face: FaceId,
 ) -> Result<crate::geom::extent2d::Extent2d> {
+let _pg = crate::probe_t::g("topology/brep/p9::computed_uv_domain");
     let initial = b.face(face)?.uv_domain;
     Ok(crate::error::ignored(crate::error::passed_on(
         crate::topology::face::p1::calculate_uv_domain_from_uv_trim_curves(
@@ -2513,6 +2569,7 @@ fn classify_with_retries(
     classify_to_original: bool,
     pc: &mut crate::intersect::point_class::PointClassification<EntityRef>,
 ) -> Result<()> {
+let _pg = crate::probe_t::g("topology/brep/p9::classify_with_retries");
     if !ray_success(&point_3d_classify(k, b, &input, pc))? {
         input.tolerance *= 100.0;
         if !ray_success(&point_3d_classify(k, b, &input, pc))? {
@@ -2538,6 +2595,7 @@ fn point_3d_classify(
     input: &FacePointInput,
     pc: &mut crate::intersect::point_class::PointClassification<EntityRef>,
 ) -> Result<()> {
+let _pg = crate::probe_t::g("topology/brep/p9::point_3d_classify");
     let FacePointInput {
         face,
         point,
@@ -2579,6 +2637,7 @@ pub fn drop_edge_curve(
     interval: &Extent1d,
     face_tolerance: f64,
 ) -> Result<EdgeCurveDrop> {
+let _pg = crate::probe_t::g("topology/brep/p9::drop_edge_curve");
     for factor in [1.0, 10.0, 300.0] {
         let (uv_curves, max_drop_to_surf, max_approx_dev) =
             drop_curve(k, surface, domain, curve, interval, face_tolerance * factor)?;
@@ -2631,6 +2690,7 @@ pub fn drop_edge_curve_on_face(
     curve: &Curve,
     interval: &Extent1d,
 ) -> Result<EdgeCurveDrop> {
+let _pg = crate::probe_t::g("topology/brep/p9::drop_edge_curve_on_face");
     let record = b.face(face)?;
     let surface =
         required(record.surface.as_ref(), "face without surface")?.clone_for_evaluation()?;
@@ -2653,6 +2713,7 @@ fn drop_edge_curve_in_face(
     interval: &Extent1d,
     face_tolerance: f64,
 ) -> Result<EdgeCurveDrop> {
+let _pg = crate::probe_t::g("topology/brep/p9::drop_edge_curve_in_face");
     let mut cache_made = false;
     for factor in [1.0, 10.0, 300.0] {
         // SmSurface::DropCurve turns the face cache's point testing off for its whole call
@@ -2726,6 +2787,7 @@ fn drop_curve(
     interval: &Extent1d,
     tolerance: f64,
 ) -> Result<(Vec<Curve>, f64, f64)> {
+let _pg = crate::probe_t::g("topology/brep/p9::drop_curve");
     // the virtual SmSurface::DropCurve with the defaults bKeepAllDropCurves = TRUE,
     // no failure record, bCreatingUVTrimCurve = TRUE
     let dropped = surface.drop_curve::<crate::surface::surface::p4::NoObject>(
@@ -2752,6 +2814,7 @@ mod tests {
         use std::collections::BTreeMap;
 
         fn split_key(entity: EntityRef) -> ObjectRef {
+let _pg = crate::probe_t::g("topology/brep/p9::split_key");
             let (base, index, type_code) = match entity {
                 EntityRef::Edge(id) => (100, id.index(), edge::TYPE),
                 EntityRef::Vertex(id) => (200, id.index(), vertex::TYPE),
@@ -2771,6 +2834,7 @@ mod tests {
         }
 
         fn split_curve_ref(edge: EdgeId, type_code: i64) -> ObjectRef {
+let _pg = crate::probe_t::g("topology/brep/p9::split_curve_ref");
             ObjectRef {
                 key: ObjectKey(1000 + u64::from(edge.index())),
                 type_code,
@@ -2778,6 +2842,7 @@ mod tests {
         }
 
         fn split_wire() -> (Brep, EdgeId) {
+let _pg = crate::probe_t::g("topology/brep/p9::split_wire");
             let mut b = Brep::new();
             b.set_key(ObjectKey(77));
             b.set_editing_enabled(true);
@@ -2813,6 +2878,7 @@ mod tests {
 
         #[test]
         fn actual_split_issues_copied_curve_identity_and_retains_refusal_prefix() {
+let _pg = crate::probe_t::g("topology/brep/p9::actual_split_issues_copied_curve_identity_and_retains_refusal_prefix");
             use std::cell::RefCell;
 
             for refuse_copy in [false, true] {
@@ -2944,6 +3010,7 @@ mod tests {
 
         #[test]
         fn split_uses_real_stores_callbacks_and_restores_each_context_on_success() {
+let _pg = crate::probe_t::g("topology/brep/p9::split_uses_real_stores_callbacks_and_restores_each_context_on_success");
             #[derive(Clone, Copy)]
             enum Binding {
                 Kernel,
@@ -3151,6 +3218,7 @@ mod tests {
 
         #[test]
         fn kernel_shell_vertex_registers_real_topology_and_notifies_in_order() {
+let _pg = crate::probe_t::g("topology/brep/p9::kernel_shell_vertex_registers_real_topology_and_notifies_in_order");
             let mut k = Kernel::default();
             let events = callbacks::install(&mut k.context);
             let mut b = Brep::new();
@@ -3216,6 +3284,7 @@ mod tests {
 
         #[test]
         fn kernel_split_refusals_restore_state_without_notifying() {
+let _pg = crate::probe_t::g("topology/brep/p9::kernel_split_refusals_restore_state_without_notifying");
             for previous in [false, true] {
                 let mut k = Kernel::default();
                 k.context.set_doing_boolean(previous);
@@ -3267,6 +3336,7 @@ mod tests {
 
     #[test]
     fn ray_errors_without_an_upstream_status_propagate() {
+let _pg = crate::probe_t::g("topology/brep/p9::ray_errors_without_an_upstream_status_propagate");
         assert!(ray_success(&Ok(())).unwrap());
         assert!(!ray_success(&Err(SolidError::sm_err(OP))).unwrap());
         assert!(!ray_success(&Err(SolidError::invalid_input(OP, "native"))).unwrap());
@@ -3293,6 +3363,7 @@ mod tests {
 
     #[test]
     fn zero_ray_direction_retains_the_defined_native_status() {
+let _pg = crate::probe_t::g("topology/brep/p9::zero_ray_direction_retains_the_defined_native_status");
         assert!(matches!(
             ray_direction(Vec3::ZERO),
             Err(SolidError::Upstream { code: 1007, .. })
@@ -3306,6 +3377,7 @@ mod tests {
     /// tolerance before and after and the end gap, or `None` when a dependency the
     /// success path needs is still unported.
     fn diagonal_overshooting_its_corner(fix: bool) -> Option<(f64, f64, f64)> {
+let _pg = crate::probe_t::g("topology/brep/p9::diagonal_overshooting_its_corner");
         use crate::topology::edgeuse::p1 as eu1;
         let k = &mut Kernel::default();
         k.fixes.new_edge_vertex_tolerance_covers_gap = fix;
@@ -3397,6 +3469,7 @@ mod tests {
     /// tolerance of at least twice the gap.
     #[test]
     fn new_edge_grows_its_vertices_tolerance_to_twice_the_end_gap() {
+let _pg = crate::probe_t::g("topology/brep/p9::new_edge_grows_its_vertices_tolerance_to_twice_the_end_gap");
         let Some((_, grown, gap)) = diagonal_overshooting_its_corner(true) else {
             return;
         };
@@ -3409,6 +3482,7 @@ mod tests {
     /// WR-469, default: the vertex keeps its tolerance, as the pinned C++ does.
     #[test]
     fn new_edge_keeps_its_vertices_tolerance_by_default() {
+let _pg = crate::probe_t::g("topology/brep/p9::new_edge_keeps_its_vertices_tolerance_by_default");
         let Some((before, after, gap)) = diagonal_overshooting_its_corner(false) else {
             return;
         };
@@ -3418,6 +3492,7 @@ mod tests {
 
     #[test]
     fn extreme_parameters_do_not_panic_and_editing_refusal_clears_outputs() {
+let _pg = crate::probe_t::g("topology/brep/p9::extreme_parameters_do_not_panic_and_editing_refusal_clears_outputs");
         let mut k = Kernel::default();
         let mut b = Brep::new();
         let v0 = b.add_vertex(Point3::new(0.0, 0.0, 0.0)).unwrap();

@@ -10,8 +10,8 @@ use std::time::Instant;
 #[test]
 #[ignore = "probe"]
 fn probe_8585() -> Result<(), Box<dyn std::error::Error>> {
-    let ks: Vec<usize> = std::env::var("PROBE_KS").ok().map(|v| v.split(',').map(|a| a.parse().unwrap()).collect()).unwrap_or(vec![5, 10, 14, 20]);
-    for overlap in [false, true] {
+    let ks: Vec<usize> = std::env::var("PROBE_KS").ok().map(|v| v.split(',').map(|a| a.parse().unwrap()).collect()).unwrap_or(vec![10, 20]);
+    for overlap in [false] {
         for &k in &ks {
             let mut kernel = Kernel::default();
             kernel.fixes = UpstreamFixes::all();
@@ -34,9 +34,11 @@ fn probe_8585() -> Result<(), Box<dyn std::error::Error>> {
             let h = if overlap { 10.1 } else { 10.0 };
             let base = create_box(&mut kernel, Point3::new(-30.0, -30.0, 0.0), 60.0, 60.0, h)?;
             kernel.work_counters.reset();
-            let t = Instant::now();
+            let _ = solidcore::probe_t::take();
+let t = Instant::now();
             let u = boolean_union(&mut kernel, base, plate)?;
             let join_s = t.elapsed().as_secs_f64();
+            for (n, c, ns) in solidcore::probe_t::take().into_iter().take(45) { println!("   T {:>9.1} ms x{:>6} {:>8.1} us/call {}", ns as f64 / 1e6, c, ns as f64 / 1e3 / c as f64, n); }
             println!(
                 "{{\"overlap\":{overlap},\"holes\":{},\"cut_s\":{cut_s:.3},\"cut_pairs\":{cut_pairs},\"cut_loops\":{cut_loops},\"join_s\":{join_s:.3},\"join_pairs\":{},\"join_loops\":{},\"faces\":{}}}",
                 k * k,
