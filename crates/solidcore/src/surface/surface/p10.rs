@@ -927,7 +927,7 @@ impl<'t, 's, O: SolutionObject + 't> LsiGlobalSolver<'t, 's, O> {
         {
             let probe_t = std::time::Instant::now();
             let probe_parts = self.parts_crossed_once(k, &leaf, line_vec, pass)?;
-            if std::env::var_os("PROBE12539").is_some() {
+            if true {
                 let once = probe_parts.iter().filter(|p| p.once).count();
                 let ms = probe_t.elapsed().as_secs_f64() * 1e3;
                 if probe_parts.len() > 8 || ms > 5.0 {
