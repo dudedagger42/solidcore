@@ -2463,6 +2463,7 @@ fn intersect_edges<O: ClassObject>(
     face: FaceId,
     has_big_gaps: bool,
 ) -> Result<()> {
+let _pg = crate::probe_t::g("query/face/p2::intersect_edges");
     if objects.classify_surface(face)?.is_none() {
         return Err(SolidError::null_pointer(OP_CURVE));
     }

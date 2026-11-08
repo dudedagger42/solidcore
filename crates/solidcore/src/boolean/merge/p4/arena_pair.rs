@@ -101,7 +101,6 @@ pub(super) struct H {
 
 impl PartialEq for H {
     fn eq(&self, o: &Self) -> bool {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::eq");
         (self.b, self.kind, self.i) == (o.b, o.kind, o.i)
     }
 }
@@ -110,14 +109,12 @@ impl Eq for H {}
 
 impl PartialOrd for H {
     fn partial_cmp(&self, o: &Self) -> Option<std::cmp::Ordering> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::partial_cmp");
         Some(self.cmp(o))
     }
 }
 
 impl Ord for H {
     fn cmp(&self, o: &Self) -> std::cmp::Ordering {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::cmp");
         (self.b, self.kind, self.i).cmp(&(o.b, o.kind, o.i))
     }
 }
@@ -133,7 +130,6 @@ pub(super) const fn hd(b: i8, kind: u8, i: u32) -> H {
 
 /// A curve handle carrying the curve's natural interval.
 fn curve_h(b: i8, kind: u8, i: u32, c: &SmCurve) -> H {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::curve_h");
     let ivl = c.natural_interval();
     H {
         b,
@@ -145,7 +141,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::curve_h");
 
 impl ClassObject for H {
     fn class_kind(&self) -> ClassObjectKind {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::class_kind");
         match self.kind {
             K_VERTEX => ClassObjectKind::Vertex,
             K_EDGE => ClassObjectKind::Edge,
@@ -163,7 +158,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::class_kind");
 
 impl SolutionObject for H {
     fn kind(&self) -> ObjectKind {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::kind");
         match self.kind {
             K_VERTEX => ObjectKind::Vertex,
             K_EDGE => ObjectKind::Edge,
@@ -174,7 +168,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::kind");
         }
     }
     fn natural_interval(&self) -> Option<Extent1d> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::natural_interval");
         match self.kind {
             K_EDGE_CURVE | K_CURVE | K_EXTRA if self.ivl.first()?.is_finite() => Some(
                 Extent1d::from_min_max(*self.ivl.first()?, *self.ivl.get(1)?),
@@ -223,14 +216,12 @@ struct Identities<'a> {
 
 impl core::fmt::Debug for Identities<'_> {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::fmt");
         f.debug_struct("Identities").finish_non_exhaustive()
     }
 }
 
 impl<'a> Identities<'a> {
     fn new(keys: NotificationKeys<'a>) -> Self {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::new");
         let failure: Rc<Cell<Option<SolidError>>> = Rc::new(Cell::new(None));
         let object = move |other: bool| -> Box<dyn Fn(EntityRef) -> ObjectRef + 'a> {
             Box::new(move |e| keys.object(other, e))
@@ -257,7 +248,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::new");
 }
 
 fn invalid(reason: &'static str) -> SolidError {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::invalid");
     SolidError::invalid_input("boolean::merge::p4::arena_pair", reason)
 }
 const fn vid(h: H) -> VertexId {
@@ -301,16 +291,13 @@ impl ArenaPair<'_> {
     /// The first curve identity the caller's keys refused during a [`MergeContext`] edit
     /// (see [`Identities`]); `None` when there was none.
     pub(super) fn take_identity_failure(&self) -> Option<SolidError> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::take_identity_failure");
         self.identities.failure.take()
     }
     fn brep(&self, h: H) -> Option<&Brep> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::brep");
         self.breps.get(usize::try_from(h.b).ok()?)?.as_deref()
     }
 
     fn brep_mut(&mut self, h: H) -> Option<&mut Brep> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::brep_mut");
         let slot = usize::try_from(h.b).ok()?;
         self.clear_face_caches(slot);
         self.breps.get_mut(slot)?.as_deref_mut()
@@ -319,20 +306,17 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::brep_mut");
     /// Empties the face caches of the B-rep in `slot`: a caller about to lend the
     /// B-rep mutably may change it, so they may no longer match.
     fn clear_face_caches(&mut self, slot: usize) {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::clear_face_caches");
         if let Some(caches) = self.face_caches.get_mut(slot) {
             caches.clear();
         }
     }
 
     fn brep_r(&self, h: H) -> crate::Result<&Brep> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::brep_r");
         self.brep(h)
             .ok_or_else(|| invalid("handle names an absent B-rep"))
     }
 
     fn brep_m(&mut self, h: H) -> crate::Result<&mut Brep> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::brep_m");
         self.brep_mut(h)
             .ok_or_else(|| invalid("handle names an absent B-rep"))
     }
@@ -340,7 +324,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::brep_m");
     /// The edge's curve handle (`ProtoBrep::edge_curve`'s shape).
     #[allow(clippy::option_option)]
     fn edge_curve_h(&self, e: H) -> Option<Option<H>> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::edge_curve_h");
         let b = self.brep(e)?;
         let edge = b.edge(eid(e)).ok()?;
         Some(
@@ -353,7 +336,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::edge_curve_h");
     /// The face's surface handle (`ProtoBrep::face_surface`'s shape).
     #[allow(clippy::option_option)]
     fn face_surface_h(&self, f: H) -> Option<Option<H>> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::face_surface_h");
         let b = self.brep(f)?;
         let face = b.face(fid(f)).ok()?;
         Some(face.surface.as_ref().map(|_| hd(f.b, K_FACE_SURFACE, f.i)))
@@ -361,14 +343,12 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::face_surface_h");
 
     /// Gives a curve made by the port a handle in the curve store.
     fn register_curve(&mut self, curve: SmCurve) -> crate::Result<H> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::register_curve");
         self.insert_curve(curve)
             .ok_or_else(|| invalid("curve store is full"))
     }
 
     /// [`Two::register_curve`] for each curve present.
     fn register_curves(&mut self, curves: Vec<Option<SmCurve>>) -> crate::Result<Vec<Option<H>>> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::register_curves");
         curves
             .into_iter()
             .map(|c| c.map(|c| self.register_curve(c)).transpose())
@@ -376,7 +356,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::register_curves");
     }
 
     fn entity_h(b: i8, e: EntityRef) -> Option<H> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::entity_h");
         match e {
             EntityRef::Vertex(v) => Some(hd(b, K_VERTEX, v.index())),
             EntityRef::Edge(x) => Some(hd(b, K_EDGE, x.index())),
@@ -390,7 +369,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::entity_h");
 
     /// Distinct `(operand_index, &Brep)` pairs currently held by this pair.
     fn distinct_breps(&self) -> Vec<(i8, &Brep)> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::distinct_breps");
         let mut out: Vec<(i8, &Brep)> = Vec::new();
         for (slot, entry) in self.breps.iter().enumerate() {
             let Some(b) = entry.as_deref() else {
@@ -409,7 +387,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::distinct_breps");
     /// Operand-scoped canonical owner key of an `Edge` or `Face`, matching
     /// `ArenaPair::brep_cache`.
     fn entity_owner_ref(&self, bi: i8, b: &Brep, entity: EntityRef) -> Option<ObjectRef> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::entity_owner_ref");
         let expected = self.keys.object(bi == 1, entity);
         let (actual, arena_obj) = match entity {
             EntityRef::Edge(edge) => (
@@ -452,7 +429,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::entity_owner_ref");
         entity: EntityRef,
         owner: ObjectRef,
     ) -> bool {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::matches_disjoint_owner");
         self.keys.object(bi == 1, entity) == owner
             || b.geometry_owner_key(entity) == Some(owner)
             || b.notify_serial()
@@ -464,7 +440,6 @@ const OP_FACE_CACHE: &str = "boolean::merge::p4::arena_pair::face_cache_target";
 /// The handle of an entity of operand `b` a face's trimmed surface cache names (its
 /// faces, edges, vertices, loop uses, edge uses and vertex uses).
 fn cache_entity_h(b: i8, e: EntityRef) -> crate::Result<H> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::cache_entity_h");
     Ok(match e {
         EntityRef::Face(f) => hd(b, K_FACE, f.index()),
         EntityRef::Edge(x) => hd(b, K_EDGE, x.index()),
@@ -479,7 +454,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::cache_entity_h");
 /// The entity of operand `b` a surface cache handle names (inverse of
 /// [`cache_entity_h`]).
 fn cache_h_entity(b: i8, h: H) -> crate::Result<EntityRef> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::cache_h_entity");
     if h.b != b {
         return Err(invalid("surface cache handle of another operand"));
     }
@@ -496,7 +470,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::cache_h_entity");
 
 impl ClassGeometry<H> for ArenaPair<'_> {
     fn curve(&self, o: H) -> Option<&SmCurve> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::curve");
         match o.kind {
             K_EDGE_CURVE => self.brep(o)?.edge(eid(o)).ok()?.curve.as_ref(),
             K_CURVE => self.curves.get(o.i as usize),
@@ -510,30 +483,25 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::curve");
         }
     }
     fn surface(&self, o: H) -> Option<&Surface> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::surface");
         match o.kind {
             K_FACE_SURFACE => self.brep(o)?.face(fid(o)).ok()?.surface.as_ref(),
             _ => None,
         }
     }
     fn volume(&self, _o: H) -> Option<&Volume> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::volume");
         None
     }
     fn point(&self, _o: H) -> Option<Point3> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::point");
         None
     }
     // Classification reads the actual vertex points and stored tolerances.
     fn classification_vertex_point(&self, o: H) -> Option<Point3> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::classification_vertex_point");
         if o.kind != K_VERTEX {
             return None;
         }
         vx::point(self.brep(o)?, vid(o)).ok()
     }
     fn topology_zone_tol_3d(&self, o: H) -> Option<f64> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::topology_zone_tol_3d");
         match o.kind {
             K_VERTEX | K_EDGE | K_FACE => self.topology_tolerance(o),
             _ => None,
@@ -543,7 +511,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::topology_zone_tol_3d")
     // reaches their members (`SmEdge::GetVertex`, `SmEdge::GetCurve`, ...) as upstream's
     // pointers do.
     fn topology_entity(&self, o: H) -> Option<(&Brep, EntityRef)> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::topology_entity");
         let t = match o.kind {
             K_VERTEX => EntityRef::Vertex(vid(o)),
             K_EDGE => EntityRef::Edge(eid(o)),
@@ -557,7 +524,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::topology_entity");
         Some((self.brep(o)?, t))
     }
     fn topology_handle_in(&self, brep: &Brep, entity: EntityRef) -> Option<H> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::topology_handle_in");
         let b = self
             .breps
             .iter()
@@ -569,7 +535,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::topology_handle_in");
         }
     }
     fn brep_id(&self, brep: &Brep) -> Option<BrepId> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::brep_id");
         let b = self
             .breps
             .iter()
@@ -577,7 +542,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::brep_id");
         Some(BrepId::from_index(u32::try_from(b).ok()?))
     }
     fn owner_entity(&self, owner: ObjectRef) -> Option<(&Brep, EntityRef)> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::owner_entity");
         let breps = self.distinct_breps();
         if owner.type_code == ed::TYPE {
             for &(bi, b) in &breps {
@@ -636,7 +600,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::owner_entity");
         None
     }
     fn owner_of(&self, owner: ObjectRef) -> Option<ObjectRef> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::owner_of");
         let breps = self.distinct_breps();
         if owner.type_code == eu1::TYPE {
             for &(bi, b) in &breps {
@@ -685,7 +648,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::owner_of");
 
 impl ProtoGeometry<H> for ArenaPair<'_> {
     fn curve_mut(&mut self, o: H) -> Option<&mut SmCurve> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::curve_mut");
         match o.kind {
             K_EDGE_CURVE => self.brep_mut(o)?.edge_mut(eid(o)).ok()?.curve.as_mut(),
             K_CURVE => self.curves.get_mut(o.i as usize),
@@ -708,7 +670,6 @@ struct Objs<P> {
 
 impl<'b, P: core::ops::Deref<Target = ArenaPair<'b>>> Objs<P> {
     fn new(two: P, b: i8) -> Self {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::new");
         Self {
             two,
             b,
@@ -716,7 +677,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::new");
         }
     }
     fn slot(&self) -> Option<usize> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::slot");
         usize::try_from(self.b).ok()
     }
 }
@@ -726,91 +686,71 @@ macro_rules! objs_reads {
     ($t:ty) => {
         impl ClassGeometry<H> for $t {
             fn curve(&self, o: H) -> Option<&SmCurve> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::curve");
                 ClassGeometry::curve(&*self.two, o)
             }
             fn surface(&self, o: H) -> Option<&Surface> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::surface");
                 ClassGeometry::surface(&*self.two, o)
             }
             fn volume(&self, o: H) -> Option<&Volume> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::volume");
                 ClassGeometry::volume(&*self.two, o)
             }
             fn point(&self, o: H) -> Option<Point3> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::point");
                 ClassGeometry::point(&*self.two, o)
             }
             // the topology handles are those of the pair, so the classification's topology
             // members (`SmVertex::GetTolerance`, `SmEdge::GetTolerance`, ...) reach the same
             // entities through either adapter
             fn classification_vertex_point(&self, o: H) -> Option<Point3> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::classification_vertex_point");
                 self.two.classification_vertex_point(o)
             }
             fn topology_zone_tol_3d(&self, o: H) -> Option<f64> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::topology_zone_tol_3d");
                 self.two.topology_zone_tol_3d(o)
             }
             fn topology_entity(&self, o: H) -> Option<(&Brep, EntityRef)> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::topology_entity");
                 self.two.topology_entity(o)
             }
             fn topology_handle_in(&self, brep: &Brep, entity: EntityRef) -> Option<H> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::topology_handle_in");
                 self.two.topology_handle_in(brep, entity)
             }
             fn brep_id(&self, brep: &Brep) -> Option<BrepId> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::brep_id");
                 self.two.brep_id(brep)
             }
             fn owner_entity(&self, owner: ObjectRef) -> Option<(&Brep, EntityRef)> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::owner_entity");
                 self.two.owner_entity(owner)
             }
             fn owner_of(&self, owner: ObjectRef) -> Option<ObjectRef> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::owner_of");
                 self.two.owner_of(owner)
             }
         }
 
         impl CurveOnClassifyObjects<H> for $t {
             fn face(&self, f: FaceId) -> H {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::face");
                 hd(self.b, K_FACE, f.index())
             }
             fn vertex(&self, v: VertexId) -> H {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::vertex");
                 hd(self.b, K_VERTEX, v.index())
             }
             fn edge(&self, e: EdgeId) -> H {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::edge");
                 hd(self.b, K_EDGE, e.index())
             }
             fn vertexuse(&self, vu: VertexuseId) -> H {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::vertexuse");
                 hd(self.b, K_VERTEXUSE, vu.index())
             }
             fn edgeuse(&self, eu: EdgeuseId) -> H {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::edgeuse");
                 hd(self.b, K_EDGEUSE, eu.index())
             }
             fn edge_curve(&self, e: EdgeId) -> H {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::edge_curve");
                 hd(self.b, K_EDGE_CURVE, e.index())
             }
             fn trim_curve(&self, eu: EdgeuseId) -> H {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::trim_curve");
                 hd(self.b, K_TRIM_CURVE, eu.index())
             }
             fn face_surface(&self, f: FaceId) -> Option<H> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::face_surface");
                 self.two
                     .face_surface_h(hd(self.b, K_FACE, f.index()))
                     .flatten()
             }
             fn loop_id(&self, tgt_loop: H) -> Option<LoopId> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::loop_id");
                 (tgt_loop.kind == K_LOOP && tgt_loop.b == self.b)
                     .then(|| LoopId::from_index(tgt_loop.i))
             }
@@ -825,22 +765,18 @@ objs_reads!(Objs<&mut ArenaPair<'_>>);
 /// (the faces' caches are kept, see `face_caches`).
 impl ClassGeometryMut<H> for Objs<&mut ArenaPair<'_>> {
     fn curve_mut(&mut self, o: H) -> Option<&mut SmCurve> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::curve_mut");
         ProtoGeometry::curve_mut(&mut *self.two, o)
     }
     fn topology_entity_mut(&mut self, o: H) -> Option<(&mut Brep, EntityRef)> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::topology_entity_mut");
         self.two.topology_entity_for_query(o)
     }
     fn topology_entity_for_query(&mut self, o: H) -> Option<(&mut Brep, EntityRef)> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::topology_entity_for_query");
         self.two.topology_entity_for_query(o)
     }
 }
 
 impl FaceBrep for Objs<&mut ArenaPair<'_>> {
     fn brep(&self) -> &Brep {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::brep");
         match self.slot().and_then(|s| self.two.breps.get(s)?.as_deref()) {
             Some(b) => b,
             None => &self.absent,
@@ -850,7 +786,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::brep");
 
 impl CurveOnClassifyBrep<H> for Objs<&mut ArenaPair<'_>> {
     fn brep_mut(&mut self) -> &mut Brep {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::brep_mut");
         // a query: the faces' caches are kept (see `face_caches`)
         let slot = usize::try_from(self.b).ok();
         match slot.and_then(|s| self.two.breps.get_mut(s)?.as_deref_mut()) {
@@ -869,19 +804,15 @@ impl ProtoBrep<H> for ArenaPair<'_> {
         pc: &mut PointClassification<H>,
         src_point: Point3,
     ) -> crate::Result<MergeOutputs<H>> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::merge_point_class_into_brep");
         crate::intersect::curve_class::p6::merge_into_object_mut(k, self, pc, src_point)
     }
     fn edge_interval(&self, edge: H) -> Option<Extent1d> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::edge_interval");
         ed::interval(self.brep(edge)?, eid(edge)).ok()
     }
     fn edge_curve(&self, edge: H) -> Option<Option<H>> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::edge_curve");
         self.edge_curve_h(edge)
     }
     fn topology_tolerance(&self, topo: H) -> Option<f64> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::topology_tolerance");
         let b = self.brep(topo)?;
         match topo.kind {
             K_VERTEX => vx::tolerance(b, vid(topo)).ok(),
@@ -891,11 +822,9 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::topology_tolerance");
         }
     }
     fn face_uv_domain(&self, face: H) -> Option<Extent2d> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::face_uv_domain");
         fp2::uv_domain(self.brep(face)?, fid(face)).ok()
     }
     fn face_trim_uv_domain(&mut self, k: &Kernel, face: H) -> crate::Result<Extent2d> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::face_trim_uv_domain");
         if face.kind != K_FACE {
             return Err(invalid("not a face handle"));
         }
@@ -930,7 +859,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::face_trim_uv_domain");
         uv: Point2,
         source_tolerance: f64,
     ) -> crate::Result<PointClassType> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::face_point_classify_uv");
         if face.kind != K_FACE {
             return Err(invalid("not a face handle"));
         }
@@ -959,34 +887,28 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::face_point_classify_uv
         Ok(output.point_class())
     }
     fn set_face_uv_domain(&mut self, face: H, domain: Extent2d) -> Option<()> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::set_face_uv_domain");
         fp2::set_uv_domain(self.brep_mut(face)?, fid(face), &domain).ok()
     }
     fn face_surface(&self, face: H) -> Option<Option<H>> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::face_surface");
         self.face_surface_h(face)
     }
     fn edge_edgeuse_of_face(&self, edge: H, face: H) -> crate::Result<Option<H>> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::edge_edgeuse_of_face");
         let b = self.brep_r(edge)?;
         let face = (face.b == edge.b && face.kind == K_FACE).then(|| fid(face));
         Ok(ed::edgeuse_of_face(b, eid(edge), face)?.map(|eu| hd(edge.b, K_EDGEUSE, eu.index())))
     }
     fn edge_is_connected_to_face(&self, edge: H, face: H) -> crate::Result<bool> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::edge_is_connected_to_face");
         let b = self.brep_r(edge)?;
         let face = (face.b == edge.b && face.kind == K_FACE).then(|| fid(face));
         ed::is_connected_to_face(b, eid(edge), face)
     }
     fn insert_curve(&mut self, curve: SmCurve) -> Option<H> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::insert_curve");
         let i = u32::try_from(self.extra.len()).ok()?;
         let hh = curve_h(2, K_EXTRA, i, &curve);
         self.extra.push(curve);
         Some(hh)
     }
     fn vertex_common_edges(&self, v1: H, v2: H) -> crate::Result<Vec<H>> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::vertex_common_edges");
         let b = self.brep_r(v1)?;
         let other = (v2.b == v1.b && v2.kind == K_VERTEX).then(|| vid(v2));
         Ok(vx::common_edges(b, vid(v1), other, None)?
@@ -1004,7 +926,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::vertex_common_edges");
         interval: Extent1d,
         tolerance: f64,
     ) -> crate::Result<Option<(H, f64)>> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::face_coincident_edge");
         if face.kind != K_FACE
             || start.kind != K_VERTEX
             || end.kind != K_VERTEX
@@ -1038,7 +959,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::face_coincident_edge")
         tolerance: f64,
         boundary_intersections: bool,
     ) -> crate::Result<PointClassification<H>> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::brep_point_3d_classify");
         let operand = brep.b;
         let id = BrepId::from_index(u32::try_from(operand).map_err(|_| invalid("not an operand"))?);
         let b = self.brep_m(brep)?;
@@ -1057,7 +977,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::brep_point_3d_classify
         do_point_classify: bool,
         cc: &mut CurveClassification<H>,
     ) -> crate::Result<bool> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::face_curve_on_classify");
         let b = self.brep_r(face)?;
         let objs = Objs::new(self, face.b);
         curve_on_classify(
@@ -1083,7 +1002,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::face_curve_on_classify
         do_point_classify: bool,
         cc: &mut CurveClassification<H>,
     ) -> crate::Result<bool> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::face_curve_on_classify_mut");
         self.brep_r(face)?;
         let mut objs = Objs::new(self, face.b);
         curve_on_classify_mut(
@@ -1107,7 +1025,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::face_curve_on_classify
         cc: &mut CurveClassification<H>,
         set_mids: bool,
     ) -> crate::Result<()> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::set_point_class_parameters_mut");
         cc.set_point_class_parameters_mut(k, self, set_mids)
     }
 
@@ -1119,7 +1036,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::set_point_class_parame
         edgeuse: H,
         param: f64,
     ) -> crate::Result<crate::math::Vec3> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::edgeuse_evaluate_binormal");
         if edgeuse.kind != K_EDGEUSE {
             return Err(invalid("not an edge use handle"));
         }
@@ -1150,7 +1066,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::edgeuse_evaluate_binor
         orientation: OrientType,
         tolerance: f64,
     ) -> crate::Result<(Option<H>, Option<H>, Option<H>)> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::brep_make_edge_in_face");
         let in_brep = |h: H, kind: u8| brep.kind == K_BREP && h.b == brep.b && h.kind == kind;
         if !in_brep(face, K_FACE) || !in_brep(start, K_VERTEX) || !in_brep(end, K_VERTEX) {
             return Err(invalid("face or vertex is not in the B-rep"));
@@ -1180,7 +1095,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::brep_make_edge_in_face
         edge: H,
         survivor: H,
     ) -> crate::Result<()> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::brep_squeeze_edge");
         if brep.kind != K_BREP || edge.b != brep.b || survivor.b != brep.b {
             return Err(invalid("edge or vertex is not in the B-rep"));
         }
@@ -1194,7 +1108,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::brep_squeeze_edge");
 /// handles); an unknown handle is an invalid-input error, as a null dereference upstream.
 impl ProtoTopology<H> for ArenaPair<'_> {
     fn vertex_use_faces(&self, vertex: H) -> crate::Result<Vec<Option<H>>> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::vertex_use_faces");
         let b = self.brep_r(vertex)?;
         let mut out = Vec::new();
         for vu in vx::vertexuses(b, vid(vertex))? {
@@ -1207,7 +1120,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::vertex_use_faces");
         Ok(out)
     }
     fn edge_use_faces(&self, edge: H) -> crate::Result<Vec<Option<H>>> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::edge_use_faces");
         let b = self.brep_r(edge)?;
         let mut out = Vec::new();
         for eu in ed::edgeuses(b, eid(edge), None, None)? {
@@ -1216,12 +1128,10 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::edge_use_faces");
         Ok(out)
     }
     fn edge_start_vertex(&self, edge: H) -> crate::Result<Option<H>> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::edge_start_vertex");
         Ok(ed::start_vertex(self.brep_r(edge)?, eid(edge))?
             .map(|v| hd(edge.b, K_VERTEX, v.index())))
     }
     fn edge_other_vertex(&self, edge: H, vertex: Option<H>) -> crate::Result<Option<H>> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::edge_other_vertex");
         let b = self.brep_r(edge)?;
         let v = vertex
             .filter(|v| v.b == edge.b && v.kind == K_VERTEX)
@@ -1229,15 +1139,12 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::edge_other_vertex");
         Ok(ed::other_vertex(b, eid(edge), v)?.map(|v| hd(edge.b, K_VERTEX, v.index())))
     }
     fn vertex_point(&self, vertex: H) -> crate::Result<Point3> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::vertex_point");
         vx::point(self.brep_r(vertex)?, vid(vertex))
     }
     fn edge_brep(&self, edge: H) -> crate::Result<Option<ObjectKey>> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::edge_brep");
         Ok(eu1::edge_brep(self.brep_r(edge)?, eid(edge))?.map(Brep::key))
     }
     fn edge_faces(&self, edge: H) -> crate::Result<Vec<H>> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::edge_faces");
         let b = self.brep_r(edge)?;
         Ok(ed::faces(b, eid(edge), None)?
             .into_iter()
@@ -1257,7 +1164,6 @@ impl IntersectorBrep<H> for ArenaPair<'_> {
         pc: &mut PointClassification<H>,
         opt_guess_uv: Option<Point2>,
     ) -> crate::Result<()> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::face_point_3d_classify");
         if face.kind != K_FACE {
             return Err(invalid("not a face handle"));
         }
@@ -1292,7 +1198,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::face_point_3d_classify
     }
 
     fn make_vertex_loop(&mut self, brep: H, face: H, point: Point3) -> crate::Result<(H, H)> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::make_vertex_loop");
         if brep.kind != K_BREP || face.kind != K_FACE || brep.b != face.b {
             return Err(invalid("vertex loop owner mismatch"));
         }
@@ -1335,7 +1240,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::make_vertex_loop");
         edge: H,
         parameter: f64,
     ) -> crate::Result<(H, H, H)> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::make_vertex_split_edge");
         if brep.kind != K_BREP || edge.kind != K_EDGE || brep.b != edge.b {
             return Err(invalid("split edge owner mismatch"));
         }
@@ -1392,7 +1296,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::make_vertex_split_edge
     }
 
     fn brep_edges(&self, brep: H) -> crate::Result<Vec<H>> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::brep_edges");
         let b = self.brep_r(brep)?;
         Ok(bp1::edges(b, None)?
             .into_iter()
@@ -1400,7 +1303,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::brep_edges");
             .collect())
     }
     fn brep_vertices(&self, brep: H) -> crate::Result<Vec<H>> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::brep_vertices");
         let b = self.brep_r(brep)?;
         Ok(bp1::vertices(b, None)?
             .into_iter()
@@ -1413,12 +1315,10 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::brep_vertices");
         face: H,
         tight: bool,
     ) -> crate::Result<Extent3d> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::face_calculate_bounding_box");
         let b = self.brep_r(face)?;
         crate::query::face::p1::calculate_bounding_box(k, b, fid(face), tight)
     }
     fn vertex_update_edge_intervals(&mut self, k: &Kernel, vertex: H) -> crate::Result<()> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::vertex_update_edge_intervals");
         if vertex.kind != K_VERTEX {
             return Err(invalid("not a vertex handle"));
         }
@@ -1427,17 +1327,14 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::vertex_update_edge_int
         })
     }
     fn vertex_brep(&self, vertex: H) -> crate::Result<Option<H>> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::vertex_brep");
         let b = self.brep_r(vertex)?;
         Ok(vx::brep(b, vid(vertex))?.map(|_| brep_h(vertex.b)))
     }
     fn edge_brep_handle(&self, edge: H) -> crate::Result<Option<H>> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::edge_brep_handle");
         let b = self.brep_r(edge)?;
         Ok(ed::brep(b, eid(edge))?.map(|_| brep_h(edge.b)))
     }
     fn set_vertex_point(&mut self, _k: &Kernel, vertex: H, point: Point3) -> crate::Result<()> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::set_vertex_point");
         let slot = usize::try_from(vertex.b).map_err(|_| invalid("bad B-rep"))?;
         self.clear_face_caches(slot);
         let b = self
@@ -1472,7 +1369,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::set_vertex_point");
         update_only_if_larger: bool,
         cascade_to_boundaries: bool,
     ) -> crate::Result<()> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::set_topology_tolerance");
         let b = self.brep_m(topo)?;
         match topo.kind {
             K_VERTEX => vx::set_tolerance(
@@ -1500,7 +1396,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::set_topology_tolerance
         this_tol: f64,
         check_gaps: bool,
     ) -> crate::Result<()> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::update_object_tolerance");
         let target = match topo.kind {
             K_VERTEX => TopologyToUpdate::Vertex(vid(topo)),
             K_EDGE => TopologyToUpdate::Edge(eid(topo)),
@@ -1511,23 +1406,18 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::update_object_toleranc
         update_object_tolerance(k, b, Some(target), this_gap, this_tol, check_gaps)
     }
     fn vertex_is_shell_vertex(&self, vertex: H) -> crate::Result<bool> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::vertex_is_shell_vertex");
         vx::is_shell_vertex(self.brep_r(vertex)?, vid(vertex))
     }
     fn edge_is_wire(&self, edge: H) -> crate::Result<bool> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::edge_is_wire");
         ed::is_wire(self.brep_r(edge)?, eid(edge))
     }
     fn edge_is_lamina(&self, edge: H) -> crate::Result<bool> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::edge_is_lamina");
         ed::is_lamina(self.brep_r(edge)?, eid(edge))
     }
     fn edge_vertex(&self, edge: H) -> crate::Result<Option<H>> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::edge_vertex");
         Ok(ed::vertex(self.brep_r(edge)?, eid(edge))?.map(|v| hd(edge.b, K_VERTEX, v.index())))
     }
     fn face_brep(&self, face: H) -> crate::Result<Option<H>> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::face_brep");
         if face.kind != K_FACE {
             return Err(invalid("not a face handle"));
         }
@@ -1535,7 +1425,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::face_brep");
         Ok(crate::topology::face::p4::brep(b, fid(face))?.map(|_| brep_h(face.b)))
     }
     fn face_vertices(&self, face: H) -> crate::Result<Vec<H>> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::face_vertices");
         if face.kind != K_FACE {
             return Err(invalid("not a face handle"));
         }
@@ -1547,7 +1436,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::face_vertices");
             .collect())
     }
     fn face_edges(&self, face: H) -> crate::Result<Vec<H>> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::face_edges");
         if face.kind != K_FACE {
             return Err(invalid("not a face handle"));
         }
@@ -1559,7 +1447,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::face_edges");
             .collect())
     }
     fn edge_primary_edgeuse_orientation(&self, edge: H) -> crate::Result<Option<OrientType>> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::edge_primary_edgeuse_orientation");
         let b = self.brep_r(edge)?;
         match eu1::primary_edgeuse(b, eid(edge))? {
             Some(eu) => Ok(Some(eu1::orientation(b, eu)?)),
@@ -1567,7 +1454,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::edge_primary_edgeuse_o
         }
     }
     fn edge_bounding_box(&self, k: &Kernel, edge: H) -> crate::Result<Extent3d> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::edge_bounding_box");
         let b = self.brep_r(edge)?;
         let boxes = crate::query::edge::calculate_bounding_box(
             k,
@@ -1586,7 +1472,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::edge_bounding_box");
         k: &Kernel,
         face: H,
     ) -> crate::Result<Extent2d> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::face_uv_domain_from_uv_trim_curves");
         if face.kind != K_FACE {
             return Err(invalid("not a face handle"));
         }
@@ -1610,7 +1495,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::face_uv_domain_from_uv
         uv: Point2,
         pc: &mut PointClassification<H>,
     ) -> crate::Result<()> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::face_point_classify");
         // (mutable: the classification may create UV trim curves, as upstream)
         let b = self.brep_m(face)?;
         let mut pe: PointClassification<EntityRef> = PointClassification::new(pc.tolerance());
@@ -1648,7 +1532,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::face_point_classify");
         wants: ti::FaceIntersectWants,
         opt_coincidence_flag: Option<bool>,
     ) -> crate::Result<ti::FaceIntersection<H>> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::face_intersect");
         if face1.kind != K_FACE || face2.kind != K_FACE {
             return Err(invalid("FaceIntersect needs two faces"));
         }
@@ -1771,7 +1654,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::face_intersect");
         })
     }
     fn editing_enabled(&self, brep: H) -> crate::Result<bool> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::editing_enabled");
         let slot = usize::try_from(brep.b).map_err(|_| invalid("bad B-rep"))?;
         if brep.kind != K_BREP {
             return Err(invalid("not a B-rep handle"));
@@ -1783,11 +1665,9 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::editing_enabled");
             .ok_or_else(|| invalid("not a B-rep handle"))
     }
     fn brep_tolerance(&self, brep: H) -> crate::Result<f64> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::brep_tolerance");
         Ok(self.brep_r(brep)?.tolerance())
     }
     fn set_editing_enabled(&mut self, brep: H, enabled: bool) -> crate::Result<bool> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::set_editing_enabled");
         let slot = usize::try_from(brep.b).map_err(|_| invalid("bad B-rep"))?;
         if brep.kind != K_BREP {
             return Err(invalid("not a B-rep handle"));
@@ -1803,11 +1683,9 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::set_editing_enabled");
         Ok(old)
     }
     fn topology_objects(&self) -> &dyn TopologyObjects<H> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::topology_objects");
         self
     }
     fn face_cache_target(&mut self, face: H) -> crate::Result<ti::FaceCacheTarget<'_, H>> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::face_cache_target");
         if face.kind != K_FACE {
             return Err(invalid("not a face handle"));
         }
@@ -1825,7 +1703,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::face_cache_target");
         })
     }
     fn face_entity_handles(&self, face: H) -> crate::Result<ti::EntityHandles<H>> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::face_entity_handles");
         if face.kind != K_FACE {
             return Err(invalid("not a face handle"));
         }
@@ -1833,7 +1710,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::face_entity_handles");
         Ok(Box::new(move |e| cache_entity_h(b, e)))
     }
     fn brep_arena(&self, brep: H) -> crate::Result<&Brep> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::brep_arena");
         if brep.kind != K_BREP {
             return Err(invalid("not a B-rep handle"));
         }
@@ -1850,7 +1726,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::brep_arena");
         to_delete: Option<H>,
         inside_faceuses: Option<&[H]>,
     ) -> crate::Result<()> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::brep_glue_edges_general");
         if brep.kind != K_BREP {
             return Err(invalid("not a B-rep handle"));
         }
@@ -1904,7 +1779,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::brep_glue_edges_genera
     /// `SmBrep::DeleteFace(pFace)` with its defaults (`FALSE, TRUE, NULL, NULL`):
     /// [`crate::topology::brep::p3::delete_face`], notifying as the glue does.
     fn brep_delete_face(&mut self, k: &mut Kernel, brep: H, face: H) -> crate::Result<()> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::brep_delete_face");
         if brep.kind != K_BREP || face.kind != K_FACE || face.b != brep.b {
             return Err(invalid("face is not in the B-rep"));
         }
@@ -1925,7 +1799,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::brep_delete_face");
     /// `SmBrep::DeleteEdge(pEdge)` (`pOptSurfaceToKeep = NULL`):
     /// [`crate::topology::brep::p4::delete_edge`], notifying as the face deletion does.
     fn brep_delete_edge(&mut self, k: &mut Kernel, brep: H, edge: H) -> crate::Result<()> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::brep_delete_edge");
         if brep.kind != K_BREP || edge.kind != K_EDGE || edge.b != brep.b {
             return Err(invalid("edge is not in the B-rep"));
         }
@@ -1938,7 +1811,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::brep_delete_edge");
     /// `SmBrep::DeleteVertex(pVertex)`: [`crate::topology::brep::p4::delete_vertex`],
     /// notifying as the face deletion does.
     fn brep_delete_vertex(&mut self, k: &mut Kernel, brep: H, vertex: H) -> crate::Result<()> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::brep_delete_vertex");
         if brep.kind != K_BREP || vertex.kind != K_VERTEX || vertex.b != brep.b {
             return Err(invalid("vertex is not in the B-rep"));
         }
@@ -1985,7 +1857,6 @@ impl TopologyObjects<H> for ArenaPair<'_> {
     /// Build the cache using the operand's actual kernel settings and geometry
     /// owner identities. Cache handles remain local to this pair and operation.
     fn brep_cache(&self, brep: H) -> crate::Result<&BrepCache<H>> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::brep_cache");
         let slot = usize::try_from(brep.b).map_err(|_| invalid("bad B-rep"))?;
         let cell = self.caches.get(slot).ok_or_else(|| invalid("bad B-rep"))?;
         if let Some(cache) = cell.get() {
@@ -2058,80 +1929,63 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::brep_cache");
         cell.get().ok_or_else(|| invalid("B-rep cache not stored"))
     }
     fn curve(&self, object: H) -> crate::Result<&SmCurve> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::curve");
         ClassGeometry::curve(self, object).ok_or_else(|| invalid("not a curve handle"))
     }
     fn analytic_curve_handle(&self, _curve: H) -> Option<H> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::analytic_curve_handle");
         None
     }
     fn vertex_point(&self, vertex: H) -> crate::Result<Point3> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::vertex_point");
         vx::point(self.brep_r(vertex)?, vid(vertex))
     }
     fn vertex_tolerance(&self, vertex: H) -> crate::Result<f64> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::vertex_tolerance");
         vx::tolerance(self.brep_r(vertex)?, vid(vertex))
     }
     fn curve_edge(&self, curve: H) -> crate::Result<Option<H>> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::curve_edge");
         Ok((curve.kind == K_EDGE_CURVE).then_some(hd(curve.b, K_EDGE, curve.i)))
     }
     fn edge_curve(&self, edge: H) -> crate::Result<Option<H>> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::edge_curve");
         self.edge_curve_h(edge)
             .ok_or_else(|| invalid("not an edge handle"))
     }
     fn edge_interval(&self, edge: H) -> crate::Result<Extent1d> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::edge_interval");
         ed::interval(self.brep_r(edge)?, eid(edge))
     }
     fn edge_tolerance(&self, edge: H) -> crate::Result<f64> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::edge_tolerance");
         ed::tolerance(self.brep_r(edge)?, eid(edge))
     }
     fn surface_face(&self, surface: H) -> crate::Result<Option<H>> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::surface_face");
         Ok((surface.kind == K_FACE_SURFACE).then_some(hd(surface.b, K_FACE, surface.i)))
     }
     fn face_surface(&self, face: H) -> crate::Result<H> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::face_surface");
         self.face_surface_h(face)
             .flatten()
             .ok_or_else(|| SolidError::null_pointer("boolean::merge::p4::arena_pair::face_surface"))
     }
     fn surface(&self, surface: H) -> crate::Result<&Surface> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::surface");
         ClassGeometry::surface(self, surface).ok_or_else(|| invalid("not a surface handle"))
     }
     fn face_uv_domain(&self, face: H) -> crate::Result<Extent2d> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::face_uv_domain");
         fp2::uv_domain(self.brep_r(face)?, fid(face))
     }
     fn face_tolerance(&self, face: H) -> crate::Result<f64> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::face_tolerance");
         fp2::tolerance(self.brep_r(face)?, fid(face))
     }
     fn face_entity(&self, face: H) -> Option<(&Brep, FaceId)> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::face_entity");
         if face.kind != K_FACE {
             return None;
         }
         Some((self.brep_r(face).ok()?, fid(face)))
     }
     fn surface_owner(&self, surface: H) -> crate::Result<Option<H>> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::surface_owner");
         TopologyObjects::surface_face(self, surface)
     }
     fn shape_member(&self, _object: H) -> ShapeMember {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::shape_member");
         ShapeMember::Other
     }
 }
 
 impl IntersectorBrepP2<H> for ArenaPair<'_> {
     fn brep_faces(&self, brep: H) -> crate::Result<Vec<H>> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::brep_faces");
         let b = self.brep_r(brep)?;
         Ok(bp1::faces(b, None)?
             .into_iter()
@@ -2145,7 +1999,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::brep_faces");
         surviving: H,
         to_delete: H,
     ) -> crate::Result<Option<H>> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::brep_combine_coincident_vertices");
         if brep.kind != K_BREP {
             return Err(invalid("not a B-rep handle"));
         }
@@ -2188,7 +2041,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::brep_combine_coinciden
         Ok(deleted_edge.map(|e| hd(brep.b, K_EDGE, e.index())))
     }
     fn edge_normalized_evaluate(&mut self, k: &Kernel, edge: H, t: f64) -> crate::Result<Point3> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::edge_normalized_evaluate");
         if edge.kind != K_EDGE {
             return Err(invalid("not an edge handle"));
         }
@@ -2199,7 +2051,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::edge_normalized_evalua
         Ok(eu3::normalized_evaluate(k, b, eu, t, false, false, true)?.point)
     }
     fn vertex_edges(&self, vertex: H) -> crate::Result<Vec<H>> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::vertex_edges");
         let b = self.brep_r(vertex)?;
         Ok(vx::edges(b, vid(vertex), None)?
             .into_iter()
@@ -2207,7 +2058,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::vertex_edges");
             .collect())
     }
     fn vertex_faces(&self, vertex: H) -> crate::Result<Vec<H>> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::vertex_faces");
         let b = self.brep_r(vertex)?;
         Ok(vx::faces(b, vid(vertex))?
             .into_iter()
@@ -2221,16 +2071,13 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::vertex_faces");
 /// handle.
 impl ClassGeometryMut<H> for ArenaPair<'_> {
     fn curve_mut(&mut self, o: H) -> Option<&mut SmCurve> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::curve_mut");
         ProtoGeometry::curve_mut(self, o)
     }
     fn topology_entity_mut(&mut self, o: H) -> Option<(&mut Brep, EntityRef)> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::topology_entity_mut");
         let (_, entity) = ClassGeometry::topology_entity(self, o)?;
         Some((self.brep_mut(o)?, entity))
     }
     fn topology_entity_for_query(&mut self, o: H) -> Option<(&mut Brep, EntityRef)> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::topology_entity_for_query");
         // a query keeps the faces' caches (see `face_caches`)
         let (_, entity) = ClassGeometry::topology_entity(self, o)?;
         let slot = usize::try_from(o.b).ok()?;
@@ -2244,7 +2091,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::topology_entity_for_qu
 /// use rebuilds it.
 impl MergeIntervalBrep<H> for ArenaPair<'_> {
     fn merge_context(&mut self, o: H) -> Option<MergeContext<'_, H>> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::merge_context");
         let target = match o.kind {
             K_VERTEX => EntityRef::Vertex(vid(o)),
             K_EDGE => EntityRef::Edge(eid(o)),
@@ -2286,12 +2132,10 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::merge_context");
 /// each hook runs the unit's function on the operand the handle names.
 impl IntersectorBrepP3<H> for ArenaPair<'_> {
     fn surface_face(&self, surface: H) -> crate::Result<Option<H>> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::surface_face");
         TopologyObjects::surface_face(self, surface)
     }
 
     fn edge_is_manifold(&self, edge: H) -> crate::Result<bool> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::edge_is_manifold");
         if edge.kind != K_EDGE {
             return Err(invalid("not an edge handle"));
         }
@@ -2299,7 +2143,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::edge_is_manifold");
     }
 
     fn loopuse_is_vertex_loopuse(&self, loopuse: H) -> crate::Result<bool> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::loopuse_is_vertex_loopuse");
         if loopuse.kind != K_LOOPUSE {
             return Err(invalid("not a loop use handle"));
         }
@@ -2307,7 +2150,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::loopuse_is_vertex_loop
     }
 
     fn loopuse_edgeuses(&self, loopuse: H) -> crate::Result<Vec<H>> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::loopuse_edgeuses");
         if loopuse.kind != K_LOOPUSE {
             return Err(invalid("not a loop use handle"));
         }
@@ -2323,7 +2165,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::loopuse_edgeuses");
     }
 
     fn edgeuse_edge(&self, edgeuse: H) -> crate::Result<Option<H>> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::edgeuse_edge");
         if edgeuse.kind != K_EDGEUSE {
             return Err(invalid("not an edge use handle"));
         }
@@ -2334,7 +2175,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::edgeuse_edge");
     }
 
     fn edgeuse_face(&self, edgeuse: H) -> crate::Result<Option<H>> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::edgeuse_face");
         if edgeuse.kind != K_EDGEUSE {
             return Err(invalid("not an edge use handle"));
         }
@@ -2344,7 +2184,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::edgeuse_face");
     }
 
     fn faceuse_face(&self, faceuse: H) -> crate::Result<Option<H>> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::faceuse_face");
         if faceuse.kind != K_FACEUSE {
             return Err(invalid("not a face use handle"));
         }
@@ -2361,7 +2200,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::faceuse_face");
         classify_edgeuse: H,
         required_orientation: OrientType,
     ) -> crate::Result<(Option<H>, Option<H>)> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::edge_find_radial_sector");
         if edge.kind != K_EDGE || classify_edgeuse.kind != K_EDGEUSE {
             return Err(invalid("not an edge and an edge use"));
         }
@@ -2415,7 +2253,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::edge_find_radial_secto
     }
 
     fn face_bounding_box(&self, k: &Kernel, face: H) -> crate::Result<Extent3d> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::face_bounding_box");
         if face.kind != K_FACE {
             return Err(invalid("not a face handle"));
         }
@@ -2423,7 +2260,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::face_bounding_box");
     }
 
     fn face_upward_loopuses(&self, face: H) -> crate::Result<Vec<H>> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::face_upward_loopuses");
         if face.kind != K_FACE {
             return Err(invalid("not a face handle"));
         }
@@ -2448,7 +2284,6 @@ impl crate::topology::proto_topology::p3::BrepGlue<H> for ArenaPair<'_> {
         v2: H,
         opt_wire_edges_in_brep: Option<&[H]>,
     ) -> crate::Result<()> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::glue_vertices");
         if brep.kind != K_BREP
             || v1.kind != K_VERTEX
             || v2.kind != K_VERTEX
@@ -2502,13 +2337,11 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::glue_vertices");
 
     /// `SmBrep::DeleteEdge` of `brep`, as [`IntersectorBrep::brep_delete_edge`].
     fn delete_edge(&mut self, k: &mut Kernel, brep: H, edge: H) -> crate::Result<()> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::delete_edge");
         IntersectorBrep::brep_delete_edge(self, k, brep, edge)
     }
 }
 
 pub(super) fn encode(entity: EntityRef, other: bool) -> H {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::encode");
     let (kind, i) = match entity {
         EntityRef::Face(f) => (K_FACE, f.index()),
         EntityRef::Edge(e) => (K_EDGE, e.index()),
@@ -2518,7 +2351,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::encode");
     hd(i8::from(other), kind, i)
 }
 pub(super) fn decode(h: H) -> EntityRef {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::decode");
     match h.kind {
         K_FACE => EntityRef::Face(fid(h)),
         K_EDGE => EntityRef::Edge(eid(h)),
@@ -2528,21 +2360,18 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::decode");
 }
 
 pub(super) fn surface_handle(other: bool, face: FaceId) -> H {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::surface_handle");
     hd(i8::from(other), K_FACE_SURFACE, face.index())
 }
 
 // A nonempty subset whose external identities match no surface must still
 // exclude every actual surface. Operand 2 has no B-rep surfaces in this adapter.
 pub(super) fn unmatched_surface() -> H {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::unmatched_surface");
     hd(2, K_FACE_SURFACE, 0)
 }
 
 /// A face of `MergeCoincidentSurfaces`' output lists: the primary's (`other` false) or
 /// the other operand's.
 pub(super) fn merged_face(h: H, other: bool) -> crate::Result<FaceId> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::merged_face");
     if h.kind == K_FACE && h.b == i8::from(other) {
         Ok(fid(h))
     } else {
@@ -2551,7 +2380,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::merged_face");
 }
 
 pub(super) fn deleted_vertex(h: H) -> crate::Result<VertexId> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::deleted_vertex");
     if h.b == 0 && h.kind == K_VERTEX {
         Ok(vid(h))
     } else {
@@ -2559,7 +2387,6 @@ let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::deleted_vertex");
     }
 }
 pub(super) fn deleted_edge(h: H) -> crate::Result<EdgeId> {
-let _pg = crate::probe_t::g("boolean/merge/p4/arena_pair::deleted_edge");
     if h.b == 0 && h.kind == K_EDGE {
         Ok(eid(h))
     } else {

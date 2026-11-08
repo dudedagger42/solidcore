@@ -82,7 +82,6 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
         end_pv: ProtoVertexId,
         final_vertices: [(O, O); 2],
     ) -> Result<()> {
-let _pg = crate::probe_t::g("topology/proto_topology/p2/imprint_ends::fit_edge_def_ends_to_proto_vertices");
         crate::profile::profile_scope!(k, "probe::fit_edge_def_ends_to_proto_vertices");
         if start_pv == end_pv {
             return Ok(());
@@ -153,7 +152,6 @@ let _pg = crate::probe_t::g("topology/proto_topology/p2/imprint_ends::fit_edge_d
         pv_pos: Point3,
         gap: f64,
     ) -> Result<()> {
-let _pg = crate::probe_t::g("topology/proto_topology/p2/imprint_ends::trim_end_to_proto_vertex");
         let d = self.ed_ref(ed)?;
         let interval = d.xsect_interval();
         let tol = d.raw_tolerance();
@@ -238,7 +236,6 @@ let _pg = crate::probe_t::g("topology/proto_topology/p2/imprint_ends::trim_end_t
         end_pt: Point3,
         gap: f64,
     ) -> Result<bool> {
-let _pg = crate::probe_t::g("topology/proto_topology/p2/imprint_ends::extend_end_to_proto_vertex");
         let d = self.ed_ref(ed)?;
         let interval = d.xsect_interval();
         let tol = d.raw_tolerance();
@@ -393,7 +390,6 @@ let _pg = crate::probe_t::g("topology/proto_topology/p2/imprint_ends::extend_end
         new_uv: [Option<Curve>; 2],
         interval: Extent1d,
     ) -> Result<()> {
-let _pg = crate::probe_t::g("topology/proto_topology/p2/imprint_ends::install_end_fit");
         let null = || dangling("curve store is full");
         let h3 = new_3d
             .map(|c| brep.insert_curve(c).ok_or_else(null))
@@ -432,7 +428,6 @@ let _pg = crate::probe_t::g("topology/proto_topology/p2/imprint_ends::install_en
 /// ([`analytic_of_continued_nurb`]), or `None` when that fails (as for a parabola or a
 /// hyperbola). Without it those kinds are `None`.
 fn extended_curve(k: &Kernel, curve: &Curve, at_end: bool, new_end: f64) -> Option<Curve> {
-let _pg = crate::probe_t::g("topology/proto_topology/p2/imprint_ends::extended_curve");
     let analytic = k.fixes.imprint_extension_keeps_analytic_curve;
     let src: std::borrow::Cow<'_, BSplineCurve> = match curve.kind() {
         CurveKind::BSpline(src) => std::borrow::Cow::Borrowed(src),
@@ -565,7 +560,6 @@ fn analytic_of_continued_nurb(
     at_end: bool,
     nurb: &BSplineCurve,
 ) -> Option<Curve> {
-let _pg = crate::probe_t::g("topology/proto_topology/p2/imprint_ends::analytic_of_continued_nurb");
     use crate::curve::ellipse::EllipseOptions;
     let nat = nurb.natural_interval();
     let start = nurb.evaluate_point(nat.min()).ok()?;
@@ -663,7 +657,6 @@ let _pg = crate::probe_t::g("topology/proto_topology/p2/imprint_ends::analytic_o
 /// C's `remainder(x, y)` (IEEE 754): `x - n y` for the integer `n` nearest `x / y`, ties
 /// to even. The result is exact; `n` is corrected when the rounded quotient misses it.
 fn ieee_remainder(x: f64, y: f64) -> f64 {
-let _pg = crate::probe_t::g("topology/proto_topology/p2/imprint_ends::ieee_remainder");
     if !x.is_finite() || !(y.abs() > 0.0) || y.is_nan() {
         return f64::NAN;
     }
@@ -694,7 +687,6 @@ mod tests {
 
     /// A clamped cubic with three spans (inner knots 1 and 2) over `[0, 3]`.
     fn cubic() -> Curve {
-let _pg = crate::probe_t::g("topology/proto_topology/p2/imprint_ends::cubic");
         let pts = [
             Point3::new(0.0, 0.0, 0.0),
             Point3::new(1.0, 2.0, 0.0),
@@ -723,7 +715,6 @@ let _pg = crate::probe_t::g("topology/proto_topology/p2/imprint_ends::cubic");
     /// (exact for a cubic), at either end (WR-453).
     #[test]
     fn extended_curve_continues_the_end_span_polynomial() {
-let _pg = crate::probe_t::g("topology/proto_topology/p2/imprint_ends::extended_curve_continues_the_end_span_polynomial");
         let k = Kernel::default();
         let old = cubic();
         let h = 0.04;
@@ -759,7 +750,6 @@ let _pg = crate::probe_t::g("topology/proto_topology/p2/imprint_ends::extended_c
     /// The quarter circle of radius 2 about (1, 1, 0) in the XY plane, from `from` to
     /// `from + 90` degrees (`inside_out`: its NURB runs the other way).
     fn quarter_circle(k: &Kernel, from: f64, inside_out: bool) -> Curve {
-let _pg = crate::probe_t::g("topology/proto_topology/p2/imprint_ends::quarter_circle");
         let e = crate::curve::ellipse::Ellipse::new_circle(
             k,
             Point3::new(1.0, 1.0, 0.0),
@@ -782,7 +772,6 @@ let _pg = crate::probe_t::g("topology/proto_topology/p2/imprint_ends::quarter_ci
     /// it is not continued.
     #[test]
     fn wr601_continued_circle_stays_a_circle() {
-let _pg = crate::probe_t::g("topology/proto_topology/p2/imprint_ends::wr601_continued_circle_stays_a_circle");
         for inside_out in [false, true] {
             for at_end in [true, false] {
                 let mut k = Kernel::default();
@@ -839,7 +828,6 @@ let _pg = crate::probe_t::g("topology/proto_topology/p2/imprint_ends::wr601_cont
     /// analytic domain `[0, 360]`, so it is not continued, as in the fork.
     #[test]
     fn wr601_circle_not_continued_out_of_its_analytic_domain() {
-let _pg = crate::probe_t::g("topology/proto_topology/p2/imprint_ends::wr601_circle_not_continued_out_of_its_analytic_domain");
         let mut k = Kernel::default();
         k.fixes.imprint_extension_keeps_analytic_curve = true;
         let old = quarter_circle(&k, 0.0, false);
@@ -851,7 +839,6 @@ let _pg = crate::probe_t::g("topology/proto_topology/p2/imprint_ends::wr601_circ
     /// WR-601: a continued ellipse stays an ellipse of the same radii.
     #[test]
     fn wr601_continued_ellipse_stays_an_ellipse() {
-let _pg = crate::probe_t::g("topology/proto_topology/p2/imprint_ends::wr601_continued_ellipse_stays_an_ellipse");
         let mut k = Kernel::default();
         k.fixes.imprint_extension_keeps_analytic_curve = true;
         let old = Curve::from(
@@ -886,7 +873,6 @@ let _pg = crate::probe_t::g("topology/proto_topology/p2/imprint_ends::wr601_cont
     /// a 2D UV curve.
     #[test]
     fn wr601_continued_line_stays_a_line() {
-let _pg = crate::probe_t::g("topology/proto_topology/p2/imprint_ends::wr601_continued_line_stays_a_line");
         for dim in [3, 2] {
             let mut k = Kernel::default();
             let (a, b) = (Point3::new(1.0, 2.0, 0.0), Point3::new(4.0, -2.0, 0.0));
@@ -910,7 +896,6 @@ let _pg = crate::probe_t::g("topology/proto_topology/p2/imprint_ends::wr601_cont
 
     #[test]
     fn ieee_remainder_matches_c() {
-let _pg = crate::probe_t::g("topology/proto_topology/p2/imprint_ends::ieee_remainder_matches_c");
         assert_eq!(ieee_remainder(190.0, 360.0), -170.0);
         assert_eq!(ieee_remainder(-190.0, 360.0), 170.0);
         assert_eq!(ieee_remainder(180.0, 360.0), 180.0);

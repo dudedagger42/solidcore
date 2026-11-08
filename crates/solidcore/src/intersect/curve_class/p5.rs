@@ -785,6 +785,7 @@ impl<O: ClassObject> CurveClassification<O> {
         uv_space_okay: bool,
         keep_curve_cache: bool,
     ) -> Result<()> {
+let _pg = crate::probe_t::g("intersect/curve_class/p5::intersect_vertices_in");
         // work in 3d when asked
         let mut wrapped = {
             let original_curve = self.curve_geometry(access.geometry())?;

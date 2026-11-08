@@ -156,7 +156,6 @@ fn pass<T>(k: &Kernel, r: Result<T>) -> Result<Result<T>> {
 }
 
 fn null(reason: &'static str) -> SolidError {
-let _pg = crate::probe_t::g("topology/face/p3::null");
     SolidError::invalid_input(OP, reason)
 }
 
@@ -172,7 +171,6 @@ fn normalized_evaluate(
     uv: bool,
     want_deriv: bool,
 ) -> Result<(Point3, Option<Vec3>)> {
-let _pg = crate::probe_t::g("topology/face/p3::normalized_evaluate");
     let r = eu3::normalized_evaluate(k, b, eu, t, uv, want_deriv, true)?;
     Ok((r.point, r.first_deriv))
 }
@@ -188,38 +186,32 @@ fn get_or_create_uv_trim_curve(
     eu: EdgeuseId,
     want_dist: bool,
 ) -> Result<(Result<()>, f64)> {
-let _pg = crate::probe_t::g("topology/face/p3::get_or_create_uv_trim_curve");
     let r = eu3::get_or_create_uv_trim_curve(k, b, eu, want_dist, false, true)?;
     Ok((r.status, r.dist_to_surf))
 }
 
 /// `GetUpwardLoopuses(sLoopuses)` (default arguments).
 fn upward_loopuses(b: &Brep, f: FaceId) -> Result<Vec<LoopuseId>> {
-let _pg = crate::probe_t::g("topology/face/p3::upward_loopuses");
     crate::topology::face::p4::upward_loopuses(b, f, false, None)
 }
 
 /// `GetUpwardEdgeuses(sEdgeuses)` (default arguments).
 fn upward_edgeuses(b: &Brep, f: FaceId) -> Result<Vec<EdgeuseId>> {
-let _pg = crate::probe_t::g("topology/face/p3::upward_edgeuses");
     crate::topology::face::p4::upward_edgeuses(b, f, false, None)
 }
 
 /// `GetUpwardVertexuses(sVertexuses)` (default arguments).
 fn upward_vertexuses(b: &Brep, f: FaceId) -> Result<Vec<VertexuseId>> {
-let _pg = crate::probe_t::g("topology/face/p3::upward_vertexuses");
     crate::topology::face::p4::upward_vertexuses(b, f, false, None)
 }
 
 /// `GetEdges(sEdges, NULL, TRUE)`: the edges of the outer loop only.
 fn outer_loop_edges(b: &Brep, f: FaceId) -> Result<Vec<EdgeId>> {
-let _pg = crate::probe_t::g("topology/face/p3::outer_loop_edges");
     crate::topology::face::p4::edges(b, f, None, true, None)
 }
 
 /// `this->GetBrep() ? this->GetBrep()->GetTolerance() : 0.0`.
 fn brep_tolerance(b: &Brep, f: FaceId) -> Result<f64> {
-let _pg = crate::probe_t::g("topology/face/p3::brep_tolerance");
     Ok(crate::topology::face::p4::brep(b, f)?.map_or(0.0, Brep::tolerance))
 }
 
@@ -259,7 +251,6 @@ fn coincidence_check(
     other: &Surface,
     tol: f64,
 ) -> Result<(bool, f64)> {
-let _pg = crate::probe_t::g("topology/face/p3::coincidence_check");
     let c = surface.coincidence_check(k, other, tol, false)?;
     Ok((c.are_coincident, c.max_distance))
 }
@@ -275,7 +266,6 @@ fn point_3d_classify(
     point: Point3,
     tol: f64,
 ) -> Result<PointClassType> {
-let _pg = crate::probe_t::g("topology/face/p3::point_3d_classify");
     let mut pc = PointClassification::<EntityRef>::new(tol);
     ignore_status(pass(
         k,
@@ -296,12 +286,10 @@ let _pg = crate::probe_t::g("topology/face/p3::point_3d_classify");
 // ---- small accessors ----------------------------------------------------------------------
 
 fn surface_of(b: &Brep, f: FaceId) -> Result<&Surface> {
-let _pg = crate::probe_t::g("topology/face/p3::surface_of");
     face2::surface(b, f)?.ok_or_else(|| null("face without surface"))
 }
 
 fn edge_curve(b: &Brep, e: EdgeId) -> Result<&Curve> {
-let _pg = crate::probe_t::g("topology/face/p3::edge_curve");
     b.edge(e)?
         .curve
         .as_ref()
@@ -318,7 +306,6 @@ let _pg = crate::probe_t::g("topology/face/p3::edge_curve");
 /// [`SolidError::NotFound`] for a dangling id; [`SolidError::InvalidInput`] for missing
 /// topology links (those of the edge walk).
 pub fn is_lamina(b: &Brep, f: FaceId) -> Result<bool> {
-let _pg = crate::probe_t::g("topology/face/p3::is_lamina");
     let edges = face_edges(b, f)?;
 
     // Check each edge, returning False if any non-lamina edge is found.
@@ -339,7 +326,6 @@ let _pg = crate::probe_t::g("topology/face/p3::is_lamina");
 ///
 /// [`SolidError::Unported`]: `SmFace::GetEdges` of the outer loop (`topology.face_p4`).
 pub fn has_consecutive_lamina_edges(b: &Brep, f: FaceId) -> Result<bool> {
-let _pg = crate::probe_t::g("topology/face/p3::has_consecutive_lamina_edges");
     // JGU: taking advantage of GWC 603 updates. Not actually bug 603
     let edges = outer_loop_edges(b, f)?;
     let mut first_edge = false;
@@ -396,7 +382,6 @@ pub fn set_tolerance(
     update_only_if_larger: bool,
     cascade_to_boundaries: bool,
 ) -> Result<()> {
-let _pg = crate::probe_t::g("topology/face/p3::set_tolerance");
     // set tolerances - when asked skip shrinking tolerances
     let face = b.face_mut(f)?;
     if !update_only_if_larger || new_zone_tol_3d > face.tolerance {
@@ -433,7 +418,6 @@ let _pg = crate::probe_t::g("topology/face/p3::set_tolerance");
 /// [`SolidError::NotFound`] for a dangling id; the notification's
 /// [`SolidError::Unported`]; those of `ClearAttributes`.
 pub fn destroy(k: &mut Kernel, b: &mut Brep, f: FaceId, env: &mut NotifyEnv<'_>) -> Result<()> {
-let _pg = crate::probe_t::g("topology/face/p3::destroy");
     b.face(f)?;
     let this = (env.key_of)(EntityRef::Face(f));
     edge::with_object_context(k, env, |n| {
@@ -469,7 +453,6 @@ pub fn notify(
     operation: NotifyOperation,
     data: [Option<ObjectRef>; 3],
 ) -> Result<()> {
-let _pg = crate::probe_t::g("topology/face/p3::notify");
     use NotifyOperation as N;
     let [d1, d2, d3] = data;
     match operation {
@@ -546,7 +529,6 @@ let _pg = crate::probe_t::g("topology/face/p3::notify");
 /// edge loops); [`SolidError::InvalidInput`] when the loop counts exceed the curves or
 /// orientations returned (upstream reads past them).
 pub fn create_composites(k: &Kernel, b: &mut Brep, f: FaceId) -> Result<Vec<CompositeCurve>> {
-let _pg = crate::probe_t::g("topology/face/p3::create_composites");
     // init output
     let mut composites = Vec::new();
 
@@ -599,7 +581,6 @@ const LOOP_ORIENTATION_SAMPLE_LIMIT: usize = 65536;
 
 /// `smos_Min(a, b)`: `a < b ? a : b`.
 fn smos_min(a: f64, b: f64) -> f64 {
-let _pg = crate::probe_t::g("topology/face/p3::smos_min");
     if a < b {
         a
     } else {
@@ -619,7 +600,6 @@ struct LoopOrientationSample {
 
 impl Default for LoopOrientationSample {
     fn default() -> Self {
-let _pg = crate::probe_t::g("topology/face/p3::default");
         // `SmPoint2d` / `SmVector2d` default-construct to `SM_UNDEF_DOUBLE`
         Self {
             param: 0.0,
@@ -653,7 +633,6 @@ struct LoopOrientationSampler<'a> {
 impl LoopOrientationSampler<'_> {
     /// `SignedArea`: the dimensionless signed area of the triangle base-start-end.
     fn signed_area(&self, start: &LoopOrientationSample, end: &LoopOrientationSample) -> f64 {
-let _pg = crate::probe_t::g("topology/face/p3::signed_area");
         ((start.uv.x - self.base.x) / self.width) * ((end.uv.y - self.base.y) / self.height)
             - ((start.uv.y - self.base.y) / self.height) * ((end.uv.x - self.base.x) / self.width)
     }
@@ -667,7 +646,6 @@ let _pg = crate::probe_t::g("topology/face/p3::signed_area");
         param: f64,
         previous: Option<&LoopOrientationSample>,
     ) -> Result<Option<LoopOrientationSample>> {
-let _pg = crate::probe_t::g("topology/face/p3::sample");
         self.samples += 1;
         if self.samples > LOOP_ORIENTATION_SAMPLE_LIMIT {
             return Ok(None);
@@ -720,7 +698,6 @@ let _pg = crate::probe_t::g("topology/face/p3::sample");
         end: &LoopOrientationSample,
         depth: u32,
     ) -> Result<bool> {
-let _pg = crate::probe_t::g("topology/face/p3::refine");
         let Some(quarter) = self.sample(
             curve,
             start.param + (end.param - start.param) * 0.25,
@@ -826,7 +803,6 @@ pub fn compute_loop_orientation(
     mut uv_bounds: Option<&mut Extent2d>,
     do_3d_loop_computation: bool,
 ) -> Result<OrientType> {
-let _pg = crate::probe_t::g("topology/face/p3::compute_loop_orientation");
     // init output
     if let Some(bounds) = uv_bounds.as_deref_mut() {
         *bounds = Extent2d::new();
@@ -927,7 +903,6 @@ pub fn compute_loop_orientation_3d(
     l: LoopId,
     mut uv_bounds: Option<&mut Extent2d>,
 ) -> Result<OrientType> {
-let _pg = crate::probe_t::g("topology/face/p3::compute_loop_orientation_3d");
     // init output
     if let Some(bounds) = uv_bounds.as_deref_mut() {
         *bounds = Extent2d::new();
@@ -953,7 +928,6 @@ fn loop_orientation_3d(
     edgeuses: &[EdgeuseId],
     mut uv_bounds: Option<&mut Extent2d>,
 ) -> Result<OrientType> {
-let _pg = crate::probe_t::g("topology/face/p3::loop_orientation_3d");
     let surf_copy = surface_of(b, f)?.copy(k)?;
     let face_domain = face2::uv_domain(b, f)?;
     let width = face_domain.x_length();
@@ -1149,7 +1123,6 @@ pub fn create_uv_trim_curves(
     adjust_tolerances: bool,
     opt_uv_curves: Option<(&mut [Option<Curve>], &[OrientType])>,
 ) -> Result<UvTrimCurveGaps> {
-let _pg = crate::probe_t::g("topology/face/p3::create_uv_trim_curves");
     create_uv_trim_curves_notified(k, b, f, adjust_tolerances, opt_uv_curves, None)
 }
 
@@ -1169,7 +1142,6 @@ pub fn create_uv_trim_curves_notified(
     opt_uv_curves: Option<(&mut [Option<Curve>], &[OrientType])>,
     env: Option<&mut NotifyEnv<'_>>,
 ) -> Result<UvTrimCurveGaps> {
-let _pg = crate::probe_t::g("topology/face/p3::create_uv_trim_curves_notified");
     // queried before the surface owner is cleared, as upstream: the surface is still
     // face-owned, so `GetSingularities`' approximation tolerance
     // (`SmTol::GetApproxTol3d(this)`) is the face's
@@ -1217,7 +1189,6 @@ fn create_uv_trim_curves_body(
     pre: &PreRescue,
     mut env: Option<&mut NotifyEnv<'_>>,
 ) -> Result<UvTrimCurveGaps> {
-let _pg = crate::probe_t::g("topology/face/p3::create_uv_trim_curves_body");
     let mut mean_cs_gap = 0.0;
     let mut max_cs_gap = 0.0_f64;
     let mut mean_cc_gap = 0.0;
@@ -1409,25 +1380,21 @@ struct EdgeGeometry<'a> {
 
 impl ClassGeometry<EntityRef> for EdgeGeometry<'_> {
     fn curve(&self, o: EntityRef) -> Option<&Curve> {
-let _pg = crate::probe_t::g("topology/face/p3::curve");
         match o {
             EntityRef::Edge(e) => self.b.edge(e).ok()?.curve.as_ref(),
             _ => None,
         }
     }
     fn surface(&self, o: EntityRef) -> Option<&Surface> {
-let _pg = crate::probe_t::g("topology/face/p3::surface");
         match o {
             EntityRef::Face(f) => self.b.face(f).ok()?.surface.as_ref(),
             _ => None,
         }
     }
     fn volume(&self, _o: EntityRef) -> Option<&Volume> {
-let _pg = crate::probe_t::g("topology/face/p3::volume");
         None
     }
     fn point(&self, o: EntityRef) -> Option<Point3> {
-let _pg = crate::probe_t::g("topology/face/p3::point");
         match o {
             EntityRef::Vertex(v) => Some(self.b.vertex(v).ok()?.point),
             _ => None,
@@ -1436,11 +1403,9 @@ let _pg = crate::probe_t::g("topology/face/p3::point");
     // the handles are the face's B-rep entities: the topology members
     // (`SmEdge::GetTolerance`, ...) read them there
     fn topology_entity(&self, o: EntityRef) -> Option<(&Brep, EntityRef)> {
-let _pg = crate::probe_t::g("topology/face/p3::topology_entity");
         Some((self.b, o))
     }
     fn topology_handle(&self, e: EntityRef) -> Option<EntityRef> {
-let _pg = crate::probe_t::g("topology/face/p3::topology_handle");
         Some(e)
     }
 }
@@ -1452,11 +1417,9 @@ struct CurveHandle(Extent1d);
 
 impl SolutionObject for CurveHandle {
     fn kind(&self) -> ObjectKind {
-let _pg = crate::probe_t::g("topology/face/p3::kind");
         ObjectKind::Curve
     }
     fn natural_interval(&self) -> Option<Extent1d> {
-let _pg = crate::probe_t::g("topology/face/p3::natural_interval");
         Some(self.0)
     }
 }
@@ -1544,7 +1507,6 @@ pub fn is_degenerate(
     skip_quick_check: bool,
     opt_zone_tol_3d: Option<f64>,
 ) -> Result<bool> {
-let _pg = crate::probe_t::g("topology/face/p3::is_degenerate");
     // A missing natural boundary does not make the retained closed surface a sliver.
     if is_closed_surface_with_vertex_loops::<EntityRef>(k, b, f, None)? {
         return Ok(false);
@@ -1816,7 +1778,6 @@ pub enum IntersectObject {
 
 impl ClassObject for IntersectObject {
     fn class_kind(&self) -> ClassObjectKind {
-let _pg = crate::probe_t::g("topology/face/p3::class_kind");
         match self {
             Self::Curve(_) | Self::UvCurve(..) | Self::EdgeCurve(..) | Self::Trim(..) => {
                 ClassObjectKind::Curve
@@ -1893,39 +1854,30 @@ pub(crate) struct IntersectObjects<'a> {
 
 impl qf2::CurveOnClassifyObjects<IntersectObject> for IntersectObjects<'_> {
     fn face(&self, f: FaceId) -> IntersectObject {
-let _pg = crate::probe_t::g("topology/face/p3::face");
         IntersectObject::Topology(EntityRef::Face(f), self.side)
     }
     fn vertex(&self, v: VertexId) -> IntersectObject {
-let _pg = crate::probe_t::g("topology/face/p3::vertex");
         IntersectObject::Topology(EntityRef::Vertex(v), self.side)
     }
     fn edge(&self, e: EdgeId) -> IntersectObject {
-let _pg = crate::probe_t::g("topology/face/p3::edge");
         IntersectObject::Topology(EntityRef::Edge(e), self.side)
     }
     fn vertexuse(&self, vu: VertexuseId) -> IntersectObject {
-let _pg = crate::probe_t::g("topology/face/p3::vertexuse");
         IntersectObject::Topology(EntityRef::Vertexuse(vu), self.side)
     }
     fn edgeuse(&self, eu: EdgeuseId) -> IntersectObject {
-let _pg = crate::probe_t::g("topology/face/p3::edgeuse");
         IntersectObject::Topology(EntityRef::Edgeuse(eu), self.side)
     }
     fn edge_curve(&self, e: EdgeId) -> IntersectObject {
-let _pg = crate::probe_t::g("topology/face/p3::edge_curve");
         IntersectObject::EdgeCurve(e, self.side)
     }
     fn trim_curve(&self, eu: EdgeuseId) -> IntersectObject {
-let _pg = crate::probe_t::g("topology/face/p3::trim_curve");
         IntersectObject::Trim(eu, self.side)
     }
     fn face_surface(&self, f: FaceId) -> Option<IntersectObject> {
-let _pg = crate::probe_t::g("topology/face/p3::face_surface");
         Some(IntersectObject::Surface(f, self.side))
     }
     fn loop_id(&self, tgt_loop: IntersectObject) -> Option<LoopId> {
-let _pg = crate::probe_t::g("topology/face/p3::loop_id");
         match tgt_loop {
             IntersectObject::Topology(EntityRef::Loop(l), _) => Some(l),
             _ => None,
@@ -1936,7 +1888,6 @@ let _pg = crate::probe_t::g("topology/face/p3::loop_id");
 impl<'a> IntersectObjects<'a> {
     /// The B-rep of the objects of `side`.
     fn brep(&self, side: bool) -> &'a Brep {
-let _pg = crate::probe_t::g("topology/face/p3::brep");
         if side {
             self.other
         } else {
@@ -1947,7 +1898,6 @@ let _pg = crate::probe_t::g("topology/face/p3::brep");
     /// [`ClassGeometry::curve`] for the borrowed lifetime (a mutable adapter over the
     /// same objects answers from a view of its own fields).
     pub(crate) fn object_curve(&self, o: IntersectObject) -> Option<&'a Curve> {
-let _pg = crate::probe_t::g("topology/face/p3::object_curve");
         match o {
             IntersectObject::Curve(i) => self.curves_3d.get(i),
             IntersectObject::UvCurve(i, false) => self.uv1.get(i)?.as_ref(),
@@ -1962,7 +1912,6 @@ let _pg = crate::probe_t::g("topology/face/p3::object_curve");
 
     /// [`ClassGeometry::surface`] for the borrowed lifetime.
     pub(crate) fn object_surface(&self, o: IntersectObject) -> Option<&'a Surface> {
-let _pg = crate::probe_t::g("topology/face/p3::object_surface");
         match o {
             IntersectObject::Surface(f, side) => self.brep(side).face(f).ok()?.surface.as_ref(),
             _ => None,
@@ -1971,7 +1920,6 @@ let _pg = crate::probe_t::g("topology/face/p3::object_surface");
 
     /// [`ClassGeometry::topology_entity`] for the borrowed lifetime.
     pub(crate) fn object_entity(&self, o: IntersectObject) -> Option<(&'a Brep, EntityRef)> {
-let _pg = crate::probe_t::g("topology/face/p3::object_entity");
         match o {
             IntersectObject::Topology(e, side) => Some((self.brep(side), e)),
             _ => None,
@@ -1979,13 +1927,11 @@ let _pg = crate::probe_t::g("topology/face/p3::object_entity");
     }
 
     fn distinct_breps(&self) -> [&'a Brep; 2] {
-let _pg = crate::probe_t::g("topology/face/p3::distinct_breps");
         [self.b, self.other]
     }
 
     /// [`ClassGeometry::owner_entity`] for the borrowed lifetime.
     pub(crate) fn object_owner_entity(&self, owner: ObjectRef) -> Option<(&'a Brep, EntityRef)> {
-let _pg = crate::probe_t::g("topology/face/p3::object_owner_entity");
         let same = core::ptr::eq(self.b, self.other);
         let breps = self.distinct_breps();
         let slice = if same { &breps[..1] } else { &breps[..] };
@@ -2052,7 +1998,6 @@ let _pg = crate::probe_t::g("topology/face/p3::object_owner_entity");
 
     /// [`ClassGeometry::owner_of`] for the borrowed lifetime.
     pub(crate) fn object_owner_of(&self, owner: ObjectRef) -> Option<ObjectRef> {
-let _pg = crate::probe_t::g("topology/face/p3::object_owner_of");
         if owner.type_code != eu1::TYPE {
             return None;
         }
@@ -2097,7 +2042,6 @@ let _pg = crate::probe_t::g("topology/face/p3::object_owner_of");
 
 impl ClassGeometry<IntersectObject> for IntersectObjects<'_> {
     fn classification_vertex_point(&self, o: IntersectObject) -> Option<Point3> {
-let _pg = crate::probe_t::g("topology/face/p3::classification_vertex_point");
         match o {
             IntersectObject::Topology(EntityRef::Vertex(v), side) => {
                 self.brep(side).vertex(v).ok().map(|v| v.point)
@@ -2106,7 +2050,6 @@ let _pg = crate::probe_t::g("topology/face/p3::classification_vertex_point");
         }
     }
     fn topology_zone_tol_3d(&self, o: IntersectObject) -> Option<f64> {
-let _pg = crate::probe_t::g("topology/face/p3::topology_zone_tol_3d");
         match o {
             IntersectObject::Topology(EntityRef::Vertex(v), side) => {
                 self.brep(side).vertex(v).ok().map(|v| v.tolerance)
@@ -2121,40 +2064,32 @@ let _pg = crate::probe_t::g("topology/face/p3::topology_zone_tol_3d");
         }
     }
     fn curve(&self, o: IntersectObject) -> Option<&Curve> {
-let _pg = crate::probe_t::g("topology/face/p3::curve");
         self.object_curve(o)
     }
     fn surface(&self, o: IntersectObject) -> Option<&Surface> {
-let _pg = crate::probe_t::g("topology/face/p3::surface");
         self.object_surface(o)
     }
     fn volume(&self, _o: IntersectObject) -> Option<&Volume> {
-let _pg = crate::probe_t::g("topology/face/p3::volume");
         None
     }
     fn point(&self, _o: IntersectObject) -> Option<Point3> {
-let _pg = crate::probe_t::g("topology/face/p3::point");
         None
     }
     // the topology handles name entities of the B-rep of their side, so the face
     // queries of the interval classification (`SmFace::PointClassify`,
     // `FindVertexSector`, ...) reach them as upstream's pointers do
     fn topology_entity(&self, o: IntersectObject) -> Option<(&Brep, EntityRef)> {
-let _pg = crate::probe_t::g("topology/face/p3::topology_entity");
         self.object_entity(o)
     }
     fn topology_handle(&self, e: EntityRef) -> Option<IntersectObject> {
-let _pg = crate::probe_t::g("topology/face/p3::topology_handle");
         Some(IntersectObject::Topology(e, self.side))
     }
     fn topology_handle_in(&self, brep: &Brep, e: EntityRef) -> Option<IntersectObject> {
-let _pg = crate::probe_t::g("topology/face/p3::topology_handle_in");
         // side `true` only for the other face's B-rep when it is a different one
         let side = !core::ptr::eq(brep, self.b);
         (!side || core::ptr::eq(brep, self.other)).then_some(IntersectObject::Topology(e, side))
     }
     fn brep_id(&self, brep: &Brep) -> Option<BrepId> {
-let _pg = crate::probe_t::g("topology/face/p3::brep_id");
         if core::ptr::eq(brep, self.b) {
             Some(BrepId::from_index(0))
         } else if core::ptr::eq(brep, self.other) {
@@ -2164,11 +2099,9 @@ let _pg = crate::probe_t::g("topology/face/p3::brep_id");
         }
     }
     fn owner_entity(&self, owner: ObjectRef) -> Option<(&Brep, EntityRef)> {
-let _pg = crate::probe_t::g("topology/face/p3::owner_entity");
         self.object_owner_entity(owner)
     }
     fn owner_of(&self, owner: ObjectRef) -> Option<ObjectRef> {
-let _pg = crate::probe_t::g("topology/face/p3::owner_of");
         self.object_owner_of(owner)
     }
 }
@@ -2193,7 +2126,6 @@ struct IntersectObjectsMut<'a> {
 impl IntersectObjectsMut<'_> {
     /// The shared view of the same objects.
     fn view(&self) -> IntersectObjects<'_> {
-let _pg = crate::probe_t::g("topology/face/p3::view");
         let b: &Brep = self.b;
         IntersectObjects {
             b,
@@ -2208,51 +2140,39 @@ let _pg = crate::probe_t::g("topology/face/p3::view");
 
 impl ClassGeometry<IntersectObject> for IntersectObjectsMut<'_> {
     fn classification_vertex_point(&self, o: IntersectObject) -> Option<Point3> {
-let _pg = crate::probe_t::g("topology/face/p3::classification_vertex_point");
         self.view().classification_vertex_point(o)
     }
     fn topology_zone_tol_3d(&self, o: IntersectObject) -> Option<f64> {
-let _pg = crate::probe_t::g("topology/face/p3::topology_zone_tol_3d");
         self.view().topology_zone_tol_3d(o)
     }
     fn curve(&self, o: IntersectObject) -> Option<&Curve> {
-let _pg = crate::probe_t::g("topology/face/p3::curve");
         self.view().object_curve(o)
     }
     fn surface(&self, o: IntersectObject) -> Option<&Surface> {
-let _pg = crate::probe_t::g("topology/face/p3::surface");
         self.view().object_surface(o)
     }
     fn volume(&self, _o: IntersectObject) -> Option<&Volume> {
-let _pg = crate::probe_t::g("topology/face/p3::volume");
         None
     }
     fn point(&self, _o: IntersectObject) -> Option<Point3> {
-let _pg = crate::probe_t::g("topology/face/p3::point");
         None
     }
     fn topology_entity(&self, o: IntersectObject) -> Option<(&Brep, EntityRef)> {
-let _pg = crate::probe_t::g("topology/face/p3::topology_entity");
         self.view().object_entity(o)
     }
     fn topology_handle(&self, e: EntityRef) -> Option<IntersectObject> {
-let _pg = crate::probe_t::g("topology/face/p3::topology_handle");
         self.view().topology_handle(e)
     }
     fn topology_handle_in(&self, brep: &Brep, e: EntityRef) -> Option<IntersectObject> {
-let _pg = crate::probe_t::g("topology/face/p3::topology_handle_in");
         self.view().topology_handle_in(brep, e)
     }
     fn brep_id(&self, brep: &Brep) -> Option<BrepId> {
-let _pg = crate::probe_t::g("topology/face/p3::brep_id");
         self.view().brep_id(brep)
     }
     fn owner_entity(&self, owner: ObjectRef) -> Option<(&Brep, EntityRef)> {
-let _pg = crate::probe_t::g("topology/face/p3::owner_entity");
         self.view().object_owner_entity(owner)
     }
     fn owner_of(&self, owner: ObjectRef) -> Option<ObjectRef> {
-let _pg = crate::probe_t::g("topology/face/p3::owner_of");
         self.view().object_owner_of(owner)
     }
 }
@@ -2260,16 +2180,13 @@ let _pg = crate::probe_t::g("topology/face/p3::owner_of");
 impl ClassGeometryMut<IntersectObject> for IntersectObjectsMut<'_> {
     // the classification curves are the intersection's, which the drops do not edit
     fn curve_mut(&mut self, _o: IntersectObject) -> Option<&mut Curve> {
-let _pg = crate::probe_t::g("topology/face/p3::curve_mut");
         None
     }
     fn topology_entity_mut(&mut self, o: IntersectObject) -> Option<(&mut Brep, EntityRef)> {
-let _pg = crate::probe_t::g("topology/face/p3::topology_entity_mut");
         self.edited = true;
         self.topology_entity_for_query(o)
     }
     fn topology_entity_for_query(&mut self, o: IntersectObject) -> Option<(&mut Brep, EntityRef)> {
-let _pg = crate::probe_t::g("topology/face/p3::topology_entity_for_query");
         let IntersectObject::Topology(e, side) = o else {
             return None;
         };
@@ -2284,39 +2201,30 @@ let _pg = crate::probe_t::g("topology/face/p3::topology_entity_for_query");
 
 impl qf2::CurveOnClassifyObjects<IntersectObject> for IntersectObjectsMut<'_> {
     fn face(&self, f: FaceId) -> IntersectObject {
-let _pg = crate::probe_t::g("topology/face/p3::face");
         self.view().face(f)
     }
     fn vertex(&self, v: VertexId) -> IntersectObject {
-let _pg = crate::probe_t::g("topology/face/p3::vertex");
         self.view().vertex(v)
     }
     fn edge(&self, e: EdgeId) -> IntersectObject {
-let _pg = crate::probe_t::g("topology/face/p3::edge");
         self.view().edge(e)
     }
     fn vertexuse(&self, vu: VertexuseId) -> IntersectObject {
-let _pg = crate::probe_t::g("topology/face/p3::vertexuse");
         self.view().vertexuse(vu)
     }
     fn edgeuse(&self, eu: EdgeuseId) -> IntersectObject {
-let _pg = crate::probe_t::g("topology/face/p3::edgeuse");
         self.view().edgeuse(eu)
     }
     fn edge_curve(&self, e: EdgeId) -> IntersectObject {
-let _pg = crate::probe_t::g("topology/face/p3::edge_curve");
         self.view().edge_curve(e)
     }
     fn trim_curve(&self, eu: EdgeuseId) -> IntersectObject {
-let _pg = crate::probe_t::g("topology/face/p3::trim_curve");
         self.view().trim_curve(eu)
     }
     fn face_surface(&self, f: FaceId) -> Option<IntersectObject> {
-let _pg = crate::probe_t::g("topology/face/p3::face_surface");
         self.view().face_surface(f)
     }
     fn loop_id(&self, tgt_loop: IntersectObject) -> Option<LoopId> {
-let _pg = crate::probe_t::g("topology/face/p3::loop_id");
         self.view().loop_id(tgt_loop)
     }
 }
@@ -2325,7 +2233,6 @@ let _pg = crate::probe_t::g("topology/face/p3::loop_id");
 /// different one, else this face's.
 impl qf2::FaceBrep for IntersectObjectsMut<'_> {
     fn brep(&self) -> &Brep {
-let _pg = crate::probe_t::g("topology/face/p3::brep");
         match (self.side, self.other.as_deref()) {
             (true, Some(other)) => other,
             _ => self.b,
@@ -2335,7 +2242,6 @@ let _pg = crate::probe_t::g("topology/face/p3::brep");
 
 impl qf2::CurveOnClassifyBrep<IntersectObject> for IntersectObjectsMut<'_> {
     fn brep_mut(&mut self) -> &mut Brep {
-let _pg = crate::probe_t::g("topology/face/p3::brep_mut");
         match (self.side, self.other.as_deref_mut()) {
             (true, Some(other)) => other,
             _ => &mut *self.b,
@@ -2382,7 +2288,6 @@ fn cap_centre_within_tolerance(
     surfaces: [(&Surface, &Extent2d, Option<&Curve>); 2],
     tol: f64,
 ) -> Result<Option<Point3>> {
-let _pg = crate::probe_t::g("topology/face/p3::cap_centre_within_tolerance");
     match cap_centre_samples(k, curve, surfaces, tol) {
         Ok(centre) => Ok(centre),
         Err(e) if e.is_unported_or_cancelled() => Err(e),
@@ -2397,7 +2302,6 @@ fn cap_centre_samples(
     surfaces: [(&Surface, &Extent2d, Option<&Curve>); 2],
     tol: f64,
 ) -> Result<Option<Point3>> {
-let _pg = crate::probe_t::g("topology/face/p3::cap_centre_samples");
     let ivl = curve.natural_interval();
     let mut centre = Vec3::new(0.0, 0.0, 0.0);
     for i in 0..CAP_SAMPLES {
@@ -2465,7 +2369,6 @@ fn remove_intersection_entry(
     types: &mut Vec<TsectCurveType>,
     ii: usize,
 ) {
-let _pg = crate::probe_t::g("topology/face/p3::remove_intersection_entry");
     drop_entry(curves, ii);
     drop_entry(uv1, ii);
     drop_entry(uv2, ii);
@@ -2504,7 +2407,6 @@ pub fn face_intersect(
     crv_ang_tol_deg: f64,
     options: &FaceIntersectOptions,
 ) -> Result<FaceIntersection> {
-let _pg = crate::probe_t::g("topology/face/p3::face_intersect");
     face_intersect_breps(
         k,
         FaceBreps::One(b),
@@ -2545,7 +2447,6 @@ pub fn face_intersect_breps(
     crv_ang_tol_deg: f64,
     options: &FaceIntersectOptions,
 ) -> Result<FaceIntersection> {
-let _pg = crate::probe_t::g("topology/face/p3::face_intersect_breps");
     face_intersect_breps_cached(
         k,
         breps,
