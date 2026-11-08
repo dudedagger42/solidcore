@@ -1709,6 +1709,7 @@ pub fn make_edge_in_face(
     output: &mut EdgeInFace,
     notifications: Option<&mut EditNotifyEnv<'_>>,
 ) -> Result<()> {
+        crate::profile::profile_scope!(k, "probe::make_edge_in_face");
     make_edge_in_face_with_uv_curve(
         k,
         b,
@@ -2041,6 +2042,7 @@ fn make_edge_in_face_with_vu(
     output: &mut EdgeInFace,
     curve_ref: &dyn Fn(EdgeId, i64) -> ObjectRef,
 ) -> Result<()> {
+        crate::profile::profile_scope!(k, "probe::make_edge_in_face_with_vu");
     let made = super::p9::make_edge_in_face_with_vu(
         k,
         b,

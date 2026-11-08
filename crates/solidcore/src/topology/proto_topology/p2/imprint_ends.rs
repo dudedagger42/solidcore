@@ -82,6 +82,7 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
         end_pv: ProtoVertexId,
         final_vertices: [(O, O); 2],
     ) -> Result<()> {
+        crate::profile::profile_scope!(k, "probe::fit_edge_def_ends_to_proto_vertices");
         if start_pv == end_pv {
             return Ok(());
         }

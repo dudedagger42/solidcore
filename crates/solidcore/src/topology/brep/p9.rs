@@ -1453,6 +1453,7 @@ pub fn make_edge_in_face_with_vu(
     env: &mut edge::NotifyEnv<'_>,
     curve_ref: &dyn Fn(EdgeId, i64) -> crate::geom::object::ObjectRef,
 ) -> Result<EdgeInFaceOutput> {
+        crate::profile::profile_scope!(k, "probe::make_edge_in_face_with_vu");
     make_edge_in_face_with_vu_with_curve_identity(
         k,
         b,

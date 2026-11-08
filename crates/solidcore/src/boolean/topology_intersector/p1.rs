@@ -868,6 +868,7 @@ pub(super) fn face_face_intersect_curves<O>(
     outputs: &FaceIntersectOutputs,
     opt_coincidence_flag: Option<bool>,
 ) -> Result<FaceIntersection<O>> {
+        crate::profile::profile_scope!(k, "probe::face_face_intersect_curves");
     let wants = FaceIntersectWants {
         this_uv_curves: opt_this_uv_curves.is_some(),
         other_uv_curves: opt_other_uv_curves.is_some(),
@@ -957,6 +958,7 @@ pub(super) fn surface_coincidence_check<O: ClassObject + SolutionObject>(
     tol_3d: f64,
     allow_extensions: bool,
 ) -> Result<(bool, f64)> {
+        crate::profile::profile_scope!(k, "probe::surface_coincidence_check");
     let s = geometry
         .surface(surface)
         .ok_or(dangling("surface handle cannot be resolved"))?;

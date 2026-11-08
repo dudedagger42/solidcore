@@ -2995,6 +2995,7 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
         ed: EdgeDefId,
         at_start: bool,
     ) -> Result<Option<O>> {
+        crate::profile::profile_scope!(k, "probe::proto_vertex_final_vertex");
         let vds = &self.pv(Some(pv))?.vertex_defs;
         if vds.is_empty() {
             return Ok(None);

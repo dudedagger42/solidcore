@@ -364,6 +364,7 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
         classification2: &CurveClassification<O>,
         ci2: &mut CurveInterval<O>,
     ) -> Result<(Option<ProtoEdgeId>, bool)> {
+        crate::profile::profile_scope!(k, "probe::find_or_create_proto_edge");
         let cc_curve = classification1.curve();
         let this_ivl = ci1.interval;
         let tol = ti_approx_tol_3d;

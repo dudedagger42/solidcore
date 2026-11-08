@@ -824,6 +824,7 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
         brep: &mut impl ProtoBrep<O>,
         vd: VertexDefId,
     ) -> Result<()> {
+        crate::profile::profile_scope!(k, "probe::imprint_vertex_definition");
         for which in [1, 2] {
             // If we're on an Edge, save that Edge for checking splits, after merge.
             let v = self.vd_ref(vd)?;
@@ -906,6 +907,7 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
         brep: &mut impl ProtoBrep<O>,
         ed: EdgeDefId,
     ) -> (Result<()>, bool) {
+        crate::profile::profile_scope!(k, "probe::imprint_edge_definition_reporting_edits");
         let mut edited = false;
         let result = self.imprint_edge_definition_inner(k, brep, ed, &mut edited);
         (result, edited)
@@ -934,6 +936,7 @@ impl<O: ClassObject> ProtoTopologyManager<O> {
         pvs: (ProtoVertexId, ProtoVertexId),
         vertices: [(O, O); 2],
     ) -> Result<Option<([f64; 2], Point3, Point3)>> {
+        crate::profile::profile_scope!(k, "probe::collapsed_beside_sibling");
         let [(start1, end1), (start2, end2)] = vertices;
         if pvs.0 != pvs.1 || start1 != end1 || start2 != end2 {
             return Ok(None);
