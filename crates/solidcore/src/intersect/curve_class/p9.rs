@@ -411,6 +411,32 @@ impl<O: ClassObject> CurveClassification<O> {
                 &mut None,
                 [None, Some(edge_zone)],
             )?;
+            if std::env::var_os("PROBE_13004").is_some() {
+                eprintln!(
+                    "PROBE edge_solutions: working {:?} ivl {:?} target {:?} ivl {:?} tol {tolerance} zone {edge_zone} -> {} sols {:?}",
+                    std::mem::discriminant(working.kind()), self.interval(),
+                    std::mem::discriminant(target.kind()), edge.interval, found.len(),
+                    found.as_slice().iter().map(|s| (s.solution_type, s.start.param(0).ok(), s.start.param(1).ok())).collect::<Vec<_>>()
+                );
+            }
+            if std::env::var_os("PROBE_13004").is_some() && found.len() == 0 {
+                let plain = working.global_curve_intersect(
+                    k,
+                    &self.interval(),
+                    target,
+                    &edge.interval,
+                    tolerance,
+                    &CurveIntersectOptions::<Side>::default(),
+                );
+                eprintln!("PROBE   plain: {:?}", plain.map(|f| f.as_slice().iter().map(|s| (s.solution_type, s.start.param(0).ok(), s.start.param(1).ok())).collect::<Vec<_>>()));
+                let mut c1 = None;
+                let mut c2 = None;
+                let nozone = working.global_curve_intersect_cached_with_zone_tols(
+                    k, &self.interval(), target, &edge.interval, tolerance,
+                    &CurveIntersectOptions { handles: [Some(Side::Source(working.natural_interval())), Some(Side::Target(target.natural_interval()))], ..CurveIntersectOptions::default() },
+                    &mut c1, &mut c2, [None, None]);
+                eprintln!("PROBE   cached no zone: {:?}", nozone.map(|f| f.len()));
+            }
             solutions.extend(
                 found
                     .as_slice()

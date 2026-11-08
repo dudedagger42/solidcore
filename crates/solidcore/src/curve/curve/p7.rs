@@ -906,6 +906,7 @@ impl<'t, O: SolutionObject + 't> CciGlobalSolver<'t, O> {
             }
         }
 
+        if std::env::var_os("PROBE_13004").is_some() && self.base.operation != SolverOperation::IntersectionTest { eprintln!("PROBE cci p7: ivl1 {:?} ivl2 {:?} turn {turn1} {turn2} ang {ang_deg} only_one {only_one_intersection_possible} guesses {:?} {:?} degen {:?} {:?} endsols {}", ivl1, ivl2, guess1, guess2, curve1.is_degenerate(k, EFF_ZERO, None), curve2.is_degenerate(k, EFF_ZERO, None), end_point_solutions.len()); }
         // exit condition: when either curve is degenerate
         if curve1.is_degenerate(k, EFF_ZERO, None)? || curve2.is_degenerate(k, EFF_ZERO, None)? {
             // to preserve previous behavior - add in all accumulated EndPointSolutions
@@ -924,6 +925,7 @@ impl<'t, O: SolutionObject + 't> CciGlobalSolver<'t, O> {
             // execute span/span NewtonRaphson Intersection
             let found = local_curve_intersect(k, curve1, &ivl1, curve2, &ivl2, tol, g1, g2)?;
 
+            if std::env::var_os("PROBE_13004").is_some() { eprintln!("PROBE cci p7 newton ({g1},{g2}) -> {:?}", found.as_ref().map(|f| (f.my_param, f.other_param, f.deviation))); }
             // when a solution was found
             if let Some(isect) = found {
                 let my_parameter = isect.my_param;
@@ -950,6 +952,7 @@ impl<'t, O: SolutionObject + 't> CciGlobalSolver<'t, O> {
                     && found_end_answer
                     && deviation > tol / 100.0;
 
+                if std::env::var_os("PROBE_13004").is_some() { eprintln!("PROBE cci p7 keep {keep} nasty {nasty_end}"); }
                 if keep && !nasty_end {
                     self.add_sorted_solution(&solution, SortKey::ByAllParameters, true)?;
                     added_solution = true;

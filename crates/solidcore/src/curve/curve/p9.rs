@@ -947,6 +947,7 @@ impl<'t, O: SolutionObject + 't> CcGlobalSolver<'t, O> {
                 Ok((false, _)) | Err(_) => None,
             };
 
+            if std::env::var_os("PROBE_13004").is_some() { eprintln!("PROBE cci local_solve: op {:?} ivl1 {:?} ivl2 {:?} guess ({g1},{g2}) found {}", local_solver_op, ivl1, ivl2, found.is_some()); if found.is_none() { let r = curve1.local_curve_solve::<O>(k, &ivl1, curve2, &ivl2, local_solver_op, tol, Some(self.base.at_distance), opt_slice, [g1, g2], handles); eprintln!("PROBE   detail: {:?}", r.map(|(ok, s)| (ok, s.start.parameters[0], s.start.parameters[1], s.start.solution_value))); } }
             // when a solution was found
             if let Some(mut solution) = found {
                 solution.nodes[0] = branch[0];

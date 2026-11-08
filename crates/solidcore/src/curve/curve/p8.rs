@@ -686,6 +686,7 @@ impl Curve {
                     sols.add(s);
                 }
                 needs_more_intersections = r.needs_more_intersections;
+                if std::env::var_os("PROBE_13004").is_some() { eprintln!("PROBE gci analytic: a1 {:?} a2 {:?} ivl {:?} oivl {:?} tol {dist_tol} -> {} sols {:?} more {}", core::mem::discriminant(a1.kind()), core::mem::discriminant(a2.kind()), interval, other_interval, r.solutions.len(), r.solutions.iter().map(|s| (s.solution_type, s.start.param(0).ok(), s.start.param(1).ok())).collect::<Vec<_>>(), r.needs_more_intersections); }
 
                 // exit when analytic/analytic intersection is complete
                 if !needs_more_intersections {
@@ -745,6 +746,7 @@ impl Curve {
             &mut sols,
         )?;
 
+        if std::env::var_os("PROBE_13004").is_some() { eprintln!("PROBE gci general test: {} sols", sols.len()); }
         // exit condition: no leafNode/leafNode possible solutions
         if sols.is_empty() {
             return Ok(sols);
@@ -773,6 +775,7 @@ impl Curve {
                 let solved = gs_test.local_solve(&branch);
                 std::mem::swap(&mut gs_test.base.solutions, &mut sols);
                 solved?;
+                if std::env::var_os("PROBE_13004").is_some() { eprintln!("PROBE gci local: {} sols {:?} nodes {:?}", sols.len(), sols.as_slice().iter().map(|s| (s.solution_type, s.start.parameters[0], s.start.parameters[1], s.start.solution_value)).collect::<Vec<_>>(), (branch[0], branch[1])); }
                 let mut finished = true;
 
                 // when just one leafNode/leafNode possible solution was found
