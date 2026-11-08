@@ -1275,7 +1275,7 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
         self.proto_topo_mgr = Some(mgr);
 
         // Intersect Topology; if that didn't work, quit before we mess up the Breps.
-        let mut deleted = self.intersect_topology(k, brep)?;
+        let mut deleted = { crate::profile::profile_scope!(k, "probe::intersect_topology"); self.intersect_topology(k, brep)? };
 
         // Not upstream unless opted in (`Kernel::fixes.boolean_coincident_strip_drops_crossing`,
         // WR-614, tangency-labs/solidcore#1794): the crossing line of two planes within
@@ -1285,7 +1285,7 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
         }
 
         // Resolve Intersections; if that didn't work, quit before we mess up the Breps.
-        deleted.extend(self.resolve_intersections(k, brep)?);
+        deleted.extend({ crate::profile::profile_scope!(k, "probe::resolve_intersections"); self.resolve_intersections(k, brep)? });
 
         // Imprint Intersections, now we'll modify the Breps. If that didn't work and a
         // failing imprint edited a Brep, the Breps are partly imprinted and no longer
@@ -1295,8 +1295,8 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
         // definition without a final vertex, or a MakeEdgeInFace that finds no vertex
         // sector before its first edit) leaves the Breps consistent, and upstream goes on;
         // so does a failing GlueCoincidentBrepVertices (UB-242 addendum, glue failure).
-        let outcome = self
-            .imprint_intersections_reporting_edits(k, brep)
+        let outcome = { crate::profile::profile_scope!(k, "probe::imprint"); self
+            .imprint_intersections_reporting_edits(k, brep) }
             .and_then(|o| {
                 if o.failure_edited {
                     o.status.map(|()| o.deleted)
@@ -1326,7 +1326,7 @@ impl<O: ClassObject + SolutionObject + Ord> TopologyIntersector<O> {
         }
 
         // Set relationship maps.
-        let status = self.set_relationships(k, brep);
+        let status = { crate::profile::profile_scope!(k, "probe::set_relationships"); self.set_relationships(k, brep) };
 
         // all done - clean up and exit
         let mut reads_freed = false;
